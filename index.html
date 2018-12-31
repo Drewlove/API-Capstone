@@ -1,0 +1,53 @@
+<!DOCTYPE >
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <link rel="stylesheet" href="styles.css">
+    <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <form>
+      <div id="state-container">
+        <div id="first-state" >
+          <label for="state">State:</label>
+          <input class="state" type="text" name="state" default="state">
+        </div>
+      </div>
+      <button id="add-state">+</button>
+      <div>
+        <input type="radio" id="commercial" name="energy">
+        <label for="commercial">Commercial</label>
+      </div>
+      <div>
+        <input type="radio" id="electric" name="energy">
+        <label for="electric">Electric</label>
+      </div>
+      <div>
+        <input type="radio" id="residential" name="energy">
+        <label for="residential">Residential</label>
+      </div>
+      <div>
+          <input type="radio" id="industrial" name="energy">
+          <label for="industrial">Industrial</label>
+      </div>
+      <div>
+          <input type="radio" id="transportation" name="energy">
+          <label for="transportation">Transportation</label>
+      </div>
+      <div>
+          <input type="radio" id="total" name="energy">
+          <label for="total">Total</label>
+      </div>
+      <button id="submit" type="submit">Submit</button>
+    </form>
+    <section id="chart">
+    </section>
+
+    <script src="index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+#chart-title{
+    text-align: center
+}
+
+#y-axis-label{
+    float: left;
+    margin-bottom: -25px;
+}
