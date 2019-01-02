@@ -8,16 +8,25 @@
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css?family=Exo+2" rel="stylesheet">
   </head>
   <body>
+    <section class="landing">
+      <header role="banner">
+          <h1>CO<sub>2</sub>MPARE</h1>
+          <h2>CO<sub>2</sub> Comparisons By State: 1980-2016</h2> 
+        </header>
+        <img src="https://bit.ly/2EZpU39">
+        <button id="compare-btn">COMPARE</button>
+      </section>
+    <section class="page hidden">
     <form>
       <div id="state-container">
         <div id="first-state" >
           <label for="state">State:</label>
-          <input class="state" type="text" name="state" default="state">
         </div>
       </div>
-      <button id="add-state">+</button>
+      <button id="add-state-btn">+</button>
       <div>
         <input type="radio" id="commercial" name="energy">
         <label for="commercial">Commercial</label>
@@ -42,11 +51,11 @@
           <input type="radio" id="total" name="energy">
           <label for="total">Total</label>
       </div>
-      <button id="submit" type="submit">Submit</button>
+      <button id="submit-btn" type="submit">Submit</button>
     </form>
-    <section id="chart">
+    <section id="chart" role="main">
     </section>
-
+    </section>
     <script src="index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
   </body>

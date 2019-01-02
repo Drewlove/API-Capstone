@@ -2,7 +2,69 @@
     text-align: center
 }
 
+#chart-canvas{
+    max-width: 980px; 
+}
+
 #y-axis-label{
     float: left;
-    margin-bottom: -25px;
 }
+
+.hidden {
+    display: none; 
+}
+
+/* 
+change font-size based on screen size
+get "compare" button to stick to bottom viewable portion of page
+currently it's pushed down below the US map image
+*/
+
+body{
+    background-color: #02000D;
+}
+
+.landing header{
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.landing h1, h2{
+    text-align: center;
+    color: white; 
+    font-family: 'Exo 2', sans-serif;
+    font-size: 24px;
+    line-height: 6px; 
+}
+
+.landing h2{
+    font-size: 16px; 
+}
+
+.landing button{
+    margin: 0 auto;
+    display: block;
+    font-size: 24px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow:#ffff99 1px 1px 15px;
+}
+
+.landing button:hover{
+    cursor: pointer;
+    box-shadow: #ffffb7 1px 1px 25px;
+    transform: scale(1.1);
+}
+
+.landing img{
+    max-width: 700px;
+    max-height: 450px;
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+
+
