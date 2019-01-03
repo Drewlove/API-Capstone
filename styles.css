@@ -1,13 +1,5 @@
-#chart-title{
-    text-align: center
-}
-
-#chart-canvas{
-    max-width: 980px; 
-}
-
-#y-axis-label{
-    float: left;
+main{
+    margin-left: 10px
 }
 
 .hidden {
@@ -22,6 +14,7 @@ currently it's pushed down below the US map image
 
 body{
     background-color: #02000D;
+    color: white; 
 }
 
 .landing header{
@@ -31,31 +24,39 @@ body{
     margin: auto;
 }
 
-.landing h1, h2{
+header h1, h2{
     text-align: center;
-    color: white; 
+    color: white;
     font-family: 'Exo 2', sans-serif;
     font-size: 24px;
-    line-height: 6px; 
+    line-height: 16px;
 }
 
-.landing h2{
+header h2{
     font-size: 16px; 
 }
 
-.landing button{
+button{
     margin: 0 auto;
     display: block;
     font-size: 24px;
     border-radius: 5px;
     background-color: white;
     box-shadow:#ffff99 1px 1px 15px;
+    transition: all .3s ease-in-out; 
 }
 
-.landing button:hover{
+button:hover{
     cursor: pointer;
     box-shadow: #ffffb7 1px 1px 25px;
-    transform: scale(1.1);
+    transform: scale(1.05);
+}
+
+#add-state-btn{
+    margin: 0;
+    font-size: 20px;
+    margin-bottom: 20px;
+    display: inline-block;
 }
 
 .landing img{
@@ -66,5 +67,96 @@ body{
     display: block;
 }
 
+@media screen and (min-width: 479px) {
+    #page-chart-choice{
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap; 
+        color: white;
+    }
+}
 
+.chart-choice-section{
+    display: block;
+    margin: 25px auto;
+    border: 5px solid white;
+    box-shadow: 1px 1px 20px white;
+    padding: 1em;
+    width: 225px;
+    height: 150px;
+}
+
+.chart-choice-p{
+    width: 150px;
+    display: block;
+    margin: 10px auto;
+    text-align: center;
+    color: white;
+}
+
+form{
+    font-size: 20px; 
+}
+
+form select{
+    font-size: 16px; 
+}
+
+#state-container div{
+    margin-bottom: 10px; 
+}
+
+form select:hover, input:hover{
+    cursor: pointer
+}
+
+#first-state{
+    display: block; 
+}
+
+.state{
+    display: block
+}
+
+.subtract-state-btn{
+    display: inline-block; 
+    font-size: 20px;
+    margin-left: 10px;
+}
+
+.modal{
+    border: 5px solid white;
+    position: absolute;
+    top: 75;
+    width: 50%;
+    height: 50%;
+    margin-left: 25%;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow:#ffff99 1px 1px 15px;
+}
+
+.modal-close{
+    font-size: 20px;
+    float: right;
+    margin-right: 10px;
+}
+
+.modal-close:hover{
+    cursor: pointer;
+    box-shadow: #ffff99 1px 1px 15px;
+}
+
+
+#chart-title{
+    text-align: center
+}
+
+#chart-canvas{
+    max-width: 980px; 
+}
+
+#y-axis-label{
+    float: left;
+}
 

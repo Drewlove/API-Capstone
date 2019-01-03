@@ -1,17 +1,28 @@
 'use strict'; 
-
 /*
 API Docs: https://developer.nrel.gov/docs/cleap/emissions/
-St. Lous Fed
+Census: https://www.census.gov/data/developers/data-sets/decennial-census.html
+Census Params: https://api.census.gov/data/2010/sf1/variables.html
+***use "P0010001" for total population
+state codes: https://www.census.gov/geo/reference/ansi_statetables.html
+*** use state codes as part of stateList array of objects 
 
-Will have to change the interval type
-Will depend upon the highest number on record, 
-round to nearest 0 or 5 number, then divide by 10
+Bug: 
+-User can select same state multiple times
 
-Be able to select multiple energy types
-Give each energy type its own line
-See CO2 emissions per capita 
---(will have to call other API that gives state population by year)
+Notes: 
+-Remove "add" in front of function name for every state listener
+
+Next Features: 
+-Use checkboxes for energy types to cumulatively add up CO2 emissions
+
+-User can see CO2 emissions per capita by making API calls to us census
+--will show 3 data points, 1990, 2000, 2010
+
+-User can see total of all 50 states CO2 emissions by energy type from 1980-2016
+
+-User can select one state, and view a graph that charts the CO2 emissions
+of each energy type. So one line for industrial, one line for commercial, etc.
 
 */
 
@@ -70,28 +81,153 @@ const stateList = [
 
 const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t'
 
-function addCompareEventListener(){
-    $("#compare-btn").on("click", function(){
-        console.log("clicking"); 
+function renderLandingPage(){
+    let landingPage = 
+    `<section class='landing'>
+        <img alt='USA lights at night' src='https://bit.ly/2EZpU39'>
+        <button id='btn-start'>START</button>
+    </section>`; 
+    $('main').append(landingPage)
+}
+
+function startEventListener(){
+    $("#btn-start").on("click", function(){
         $(".landing").addClass("hidden"); 
-        $(".page").removeClass("hidden");
-        $("body").css("background-color", "white")  
+        emptyMainContent(); 
+        renderChartChoice(); 
     })
+}
+
+function emptyMainContent(){
+    $('main').empty(); 
+}
+
+function renderChartChoice(){
+    let chartChoice = 
+    `<section id='page-chart-choice'>
+        <section class='chart-choice-section'>
+            <button id='btn-compare'>Compare States</button>
+                <p class='chart-choice-p'>Compare multiple state's CO2 emissions</p>
+        </section>
+        <section class='chart-choice-section'>
+            <button>Analyze State</button>
+            <p class='chart-choice-p'>Analyze a single state's CO2 emissions</p>
+        </section>
+    </section>`; 
+    $('main').append(chartChoice); 
+    $('#btn-compare').on('click', function(){
+        emptyMainContent(); 
+        renderCompareStatesForm(); 
+    })
+}
+
+function renderCompareStatesForm(){
+    let compareStateForm = 
+    `<section class'page-compare'>
+    <form>
+      <div id='state-container'>
+        <div id='first-state' class='state'>
+          <label for='state'>State:</label>
+        </div>
+      </div>
+      <button id='add-state-btn'>+</button>
+      <span>Add State</span>
+      <div>
+        <input type='radio' id='commercial' name='energy'>
+        <label for=='commercial='>Commercial</label>
+      </div>
+      <div>
+        <input type='radio' id='electric' name='energy'>
+        <label for='electric'>Electric</label>
+      </div>
+      <div>
+        <input type='radio' id='residential' name='energy'>
+        <label for='residential'>Residential</label>
+      </div>
+      <div>
+          <input type='radio' id='industrial' name='energy'>
+          <label for='industrial'>Industrial</label>
+      </div>
+      <div>
+          <input type='radio' id='transportation' name='energy'>
+          <label for='transportation'>Transportation</label>
+      </div>
+      <div>
+          <input type='radio' id='total' name='energy'>
+          <label for='total'>Total</label>
+      </div>
+      <button id='submit-btn' type='submit'>Submit</button>
+    </form>
+    <section id='chart'></section>`;
+    $('main').append(compareStateForm);
+    addStateEventListener();
+    addStateOptions(); 
+    addSubmitEventListener(); 
 }
 
 function addStateEventListener(){
     $("#add-state-btn").on("click", function(e){
         e.preventDefault(); 
-        let newStateEntry = $("#first-state").clone().removeAttr("id"); 
-        $("#state-container").append(newStateEntry); 
-        $(".state").last().val("");      
+        if( $('.state').length <5){
+            let newStateEntry = $("#first-state").clone().removeAttr("id"); 
+            $("#state-container").append(newStateEntry);
+            $('.state').last().append(`<button class='subtract-state-btn'>-</button>`)
+            $(".state").last().val("");  
+            subtractStateButtonListener(); 
+        }
+        else {
+            let modalMessage = "Only 5 states allowed at a time"; 
+            return renderModal(modalMessage)
+        }
     })
+}
+
+function renderModal(message){
+    let modal = 
+    `<section class='modal'>
+        <span class='modal-close'>X</span>
+        <h1>${message}</h1>
+    </section>
+    `; 
+    $('main').append(modal); 
+    modalCloseListener(); 
+}
+
+function modalCloseListener(){
+    $('.modal-close').on('click', function(e){
+        e.preventDefault(); 
+        closeModal()
+    })
+}
+
+
+function closeModal(){
+    console.log("close"); 
+    $('.modal').remove(); 
+}
+
+function subtractStateButtonListener(){
+    $('.subtract-state-btn').on('click', function(e){
+        e.preventDefault(); 
+        $(this).closest('.state').empty(); 
+    })
+}
+
+function addStateOptions(){
+    $("#first-state").append(`<select class='state-val' name='state'>${stateOption()}</select>`);
+}
+
+function stateOption(){
+    let stateOptions = stateList.map(stateObj => {
+        return `<option value=${stateObj.abbr}>${stateObj.name}</option>`
+    })
+    return stateOptions.join(); 
 }
 
 function addSubmitEventListener(){
     $("#submit-btn").on("click", function(e){
         e.preventDefault(); 
-        let state = $(".state").map(function(){
+        let state = $(".state-val").map(function(){
             return $(this).val(); 
         }).get(); 
         let energyType = $("input[name=energy]:checked")[0].id; 
@@ -140,10 +276,32 @@ function display(response, state, energyType){
         type: 'line',
         data: {
             labels: Object.keys(responseData),
-            datasets: createDataSet(state, response),
+            datasets: createDataSet(state, response), 
         },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        fontSize: 16, 
+                        fontColor: 'white'
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        fontSize: 16, 
+                        fontColor: 'white'
+                    }
+                }] 
+            },
+            legend: {
+                labels:{
+                  fontSize: 18, 
+                  fontColor: 'white'
+                }
+            }
+        }
     });
-    $("#chart-title").append("<div id='y-axis-label'>Million Metric Tons CO2</div>")
+    $("#chart-title").append("<div id='y-axis-label'>Million Metric Tons CO2</div>");
 }
 
 function resetCanvas(energyType, state){
@@ -175,29 +333,15 @@ function createDataSet(state, response){
             fill: false, 
             borderColor: lineColors[i],
             data: Object.values(responseData).map(dataPoint => dataPoint.toFixed(3)),
-            pointBackgroundColor: lineColors[i],
-            pointBorderWidth: 1
+            pointBackgroundColor: 'white',
         })
     }
     return responseDataSet;
 }
 
-function addStateOptions(){
-    $("#first-state").append(`<select class='state' name='state'>${stateSelect()}</select>`);
-}
-
-function stateSelect(){
-    let stateOptions = stateList.map(stateObj => {
-        return `<option value=${stateObj.abbr}>${stateObj.name}</option>`
-    })
-    return stateOptions.join(); 
-}
-
 function launchApp(){
-    addCompareEventListener(); 
-    addStateEventListener();
-    addSubmitEventListener();
-    addStateOptions(); 
+    renderLandingPage()
+    startEventListener(); 
 }
 
 $(launchApp)
