@@ -1,14 +1,24 @@
-'use strict'; 
+'use strict';
 /*
-API Docs: https://developer.nrel.gov/docs/cleap/emissions/
-Census: https://www.census.gov/data/developers/data-sets/decennial-census.html
-Census Params: https://api.census.gov/data/2010/sf1/variables.html
-***use "P0010001" for total population
-state codes: https://www.census.gov/geo/reference/ansi_statetables.html
-*** use state codes as part of stateList array of objects 
+*** data of gdp by state, 1997-2016
+https://www.eia.gov/state/seds/sep_use/notes/use_gdp.pdf
+BEA Data API: A1E0048C-FE51-40B6-B0BE-F8D7D58C1549
 
-Bug: 
--User can select same state multiple times
+API Call to get each state's GDP from 1997-2016: 
+https://apps.bea.gov/api/data/?UserID=A1E0048C-FE51-40B6-B0BE-F8D7D58C1549&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=STATE&ResultFormat=json
+TableName is what determines what economic data you are retrieving
+For a list of tables see: 
+Appendix N
+page 1 of 9; 
+
+
+
+incorporate feedback
+-Add an X, so you can close a graph once it's been generated
+-Add titles\directions at the head of the state inputs and the 
+energy type inputs. Need to more clearly communicate to user
+what those inputs are for. 
+
 
 Notes: 
 -Remove "add" in front of function name for every state listener
@@ -26,105 +36,134 @@ of each energy type. So one line for industrial, one line for commercial, etc.
 
 */
 
-const stateList = [
-    {name: "Alabama", abbr: "AL"},
-    {name: "Alaska", abbr: "AK"},
-    {name: "Arizona", abbr: "AZ"}, 
-    {name: "Arkansas",abbr: "AR"},
-    {name: "California", abbr: "CA"},
-    {name: "Colorado", abbr: "CO"},
-    {name: "Connecticut", abbr: "CT"},
-    {name: "Delaware", abbr: "DE"},
-    {name: "Florida", abbr: "FL"},
-    {name: "Georgia", abbr: "GA"},
-    {name: "Hawaii", abbr: "HI"},
-    {name: "Idaho", abbr: "ID"},
-    {name: "Illinois", abbr: "IL"},
-    {name: "Indiana", abbr: "IN"},
-    {name: "Iowa", abbr: "IA"},
-    {name: "Kansas", abbr: "KS"},
-    {name: "Kentucky", abbr: "KY"},
-    {name: "Louisiana", abbr: "LA"},
-    {name: "Maine", abbr: "ME"},
-    {name: "Maryland", abbr: "MD"},
-    {name: "Massachusetts", abbr: "MA"},
-    {name: "Michigan", abbr: "MI"},
-    {name: "Minnesota", abbr: "MN"},
-    {name: "Mississippi", abbr: "MS"},
-    {name: "Missouri", abbr: "MO"},
-    {name: "Montana", abbr: "MT"},
-    {name: "Nebraska", abbr: "NE"},
-    {name: "Nevada", abbr: "NV"},
-    {name: "New Hampshire", abbr: "NH"},
-    {name: "New Jersey", abbr: "NJ"},
-    {name: "New Mexico", abbr: "NM"},
-    {name: "New York", abbr: "NY"},
-    {name: "North Carolina", abbr: "NC"},
-    {name: "North Dakota", abbr: "ND"},
-    {name: "Ohio", abbr: "OH"},
-    {name: "Oklahoma", abbr: "OK"},
-    {name: "Oregon", abbr: "OR"},
-    {name: "Pennsylvania", abbr: "PA"},
-    {name: "Rhode Island", abbr: "RI"},
-    {name: "South Carolina", abbr: "SC"},
-    {name: "South Dakota", abbr: "SD"},
-    {name: "Tennessee", abbr: "TN"},
-    {name: "Texas", abbr: "TX"},
-    {name: "Utah", abbr: "UT"},
-    {name: "Vermont", abbr: "VT"},
-    {name: "Virginia", abbr: "VA"},
-    {name: "Washington", abbr: "WA"},
-    {name: "West Virginia", abbr: "WV"},
-    {name: "Wisconsin", abbr: "WI"},
-    {name: "Wyoming", abbr: "WY"}
+
+
+/*
+
+On submit: 
+Empty main content
+then render chart
+
+add an X that when clicked closes the chart and returns user to form
+where they can choose states and energy type
+
+Firebase GDP data
+
+*/
+
+const stateListMaster = [
+    { name: "Alabama", abbr: "AL" },
+    { name: "Alaska", abbr: "AK" },
+    { name: "Arizona", abbr: "AZ" },
+    { name: "Arkansas", abbr: "AR" },
+    { name: "California", abbr: "CA" },
+    { name: "Colorado", abbr: "CO" },
+    { name: "Connecticut", abbr: "CT" },
+    { name: "Delaware", abbr: "DE" },
+    { name: "Florida", abbr: "FL" },
+    { name: "Georgia", abbr: "GA" },
+    { name: "Hawaii", abbr: "HI" },
+    { name: "Idaho", abbr: "ID" },
+    { name: "Illinois", abbr: "IL" },
+    { name: "Indiana", abbr: "IN" },
+    { name: "Iowa", abbr: "IA" },
+    { name: "Kansas", abbr: "KS" },
+    { name: "Kentucky", abbr: "KY" },
+    { name: "Louisiana", abbr: "LA" },
+    { name: "Maine", abbr: "ME" },
+    { name: "Maryland", abbr: "MD" },
+    { name: "Massachusetts", abbr: "MA" },
+    { name: "Michigan", abbr: "MI" },
+    { name: "Minnesota", abbr: "MN" },
+    { name: "Mississippi", abbr: "MS" },
+    { name: "Missouri", abbr: "MO" },
+    { name: "Montana", abbr: "MT" },
+    { name: "Nebraska", abbr: "NE" },
+    { name: "Nevada", abbr: "NV" },
+    { name: "New Hampshire", abbr: "NH" },
+    { name: "New Jersey", abbr: "NJ" },
+    { name: "New Mexico", abbr: "NM" },
+    { name: "New York", abbr: "NY" },
+    { name: "North Carolina", abbr: "NC" },
+    { name: "North Dakota", abbr: "ND" },
+    { name: "Ohio", abbr: "OH" },
+    { name: "Oklahoma", abbr: "OK" },
+    { name: "Oregon", abbr: "OR" },
+    { name: "Pennsylvania", abbr: "PA" },
+    { name: "Rhode Island", abbr: "RI" },
+    { name: "South Carolina", abbr: "SC" },
+    { name: "South Dakota", abbr: "SD" },
+    { name: "Tennessee", abbr: "TN" },
+    { name: "Texas", abbr: "TX" },
+    { name: "Utah", abbr: "UT" },
+    { name: "Vermont", abbr: "VT" },
+    { name: "Virginia", abbr: "VA" },
+    { name: "Washington", abbr: "WA" },
+    { name: "West Virginia", abbr: "WV" },
+    { name: "Wisconsin", abbr: "WI" },
+    { name: "Wyoming", abbr: "WY" }
 ]
 
 const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t'
 
-function renderLandingPage(){
-    let landingPage = 
-    `<section class='landing'>
+function launchApp() {
+    renderLandingPage();
+    startEventListener();
+}
+
+function renderLandingPage() {
+    let landingPage =
+        `<section class='landing'>
         <img alt='USA lights at night' src='https://bit.ly/2EZpU39'>
-        <button id='btn-start'>START</button>
-    </section>`; 
+        <button>START</button>
+    </section>`;
     $('main').append(landingPage)
+
 }
 
-function startEventListener(){
-    $("#btn-start").on("click", function(){
-        $(".landing").addClass("hidden"); 
-        emptyMainContent(); 
-        renderChartChoice(); 
+function startEventListener() {
+    $(".landing button").on("click", function () {
+        $(".landing").addClass("hidden");
+        emptyMainContent();
+        renderChartChoice();
+        compareEventListener();
     })
 }
 
-function emptyMainContent(){
-    $('main').empty(); 
+function emptyMainContent() {
+    $('main').empty();
 }
 
-function renderChartChoice(){
-    let chartChoice = 
-    `<section id='page-chart-choice'>
-        <section class='chart-choice-section'>
-            <button id='btn-compare'>Compare States</button>
-                <p class='chart-choice-p'>Compare multiple state's CO2 emissions</p>
-        </section>
-        <section class='chart-choice-section'>
-            <button>Analyze State</button>
-            <p class='chart-choice-p'>Analyze a single state's CO2 emissions</p>
-        </section>
-    </section>`; 
-    $('main').append(chartChoice); 
-    $('#btn-compare').on('click', function(){
-        emptyMainContent(); 
-        renderCompareStatesForm(); 
+function renderChartChoice() {
+    $('main').append(chartChoice);
+}
+
+function chartChoice(){
+    return `<section id='page-chart-choice'>
+            <section class='compare'>
+            <button>Compare</button>
+                    <p class='chart-choice-p'>Compare multiple state's CO2 emissions</p>
+            </section>
+            <section class='analyze-choice'>
+                <button>Analyze State</button>
+                <p class='chart-choice-p'>Analyze a single state's CO2 emissions</p>
+            </section>
+            </section>`
+        } 
+
+function compareEventListener() {
+    $(".compare button").on("click", function () {
+        emptyMainContent();
+        renderCompareStatesForm();
     })
 }
 
-function renderCompareStatesForm(){
-    let compareStateForm = 
-    `<section class'page-compare'>
+function renderCompareStatesForm() {
+    let compareStateForm =
+        `<section id='page-compare'>
     <form>
+    <fieldset>
+    <legend>Select States to Compare</legend>
       <div id='state-container'>
         <div id='first-state' class='state'>
           <label for='state'>State:</label>
@@ -132,216 +171,261 @@ function renderCompareStatesForm(){
       </div>
       <button id='add-state-btn'>+</button>
       <span>Add State</span>
-      <div>
-        <input type='radio' id='commercial' name='energy'>
-        <label for=='commercial='>Commercial</label>
-      </div>
-      <div>
-        <input type='radio' id='electric' name='energy'>
-        <label for='electric'>Electric</label>
-      </div>
-      <div>
-        <input type='radio' id='residential' name='energy'>
-        <label for='residential'>Residential</label>
-      </div>
-      <div>
-          <input type='radio' id='industrial' name='energy'>
-          <label for='industrial'>Industrial</label>
-      </div>
-      <div>
-          <input type='radio' id='transportation' name='energy'>
-          <label for='transportation'>Transportation</label>
-      </div>
-      <div>
-          <input type='radio' id='total' name='energy'>
-          <label for='total'>Total</label>
-      </div>
+      </fieldset>
+      <fieldset>
+      <legend>Choose CO<sub>2</sub> Emissions by Energy Type</legend>
+      ${renderEnergyInputs()}
+      </fieldset>
       <button id='submit-btn' type='submit'>Submit</button>
-    </form>
-    <section id='chart'></section>`;
+    </form>`
+
     $('main').append(compareStateForm);
     addStateEventListener();
-    addStateOptions(); 
-    addSubmitEventListener(); 
+    addStateOptions();
+    submitEventListener();
 }
 
-function addStateEventListener(){
-    $("#add-state-btn").on("click", function(e){
-        e.preventDefault(); 
-        if( $('.state').length <5){
-            let newStateEntry = $("#first-state").clone().removeAttr("id"); 
+function renderEnergyInputs() {
+    let energyTypes = ["commercial", "electric", "residential", "industrial", "transportation", "total"];
+    return energyTypes.map(energy => {
+        return (
+            `<div>
+            <input type='checkbox' data-energy=${energy} name="energy"}>
+            <label for=${energy}>${capitalize(energy)}</label>  
+        </div>`
+        )
+    })
+    .join("");
+}
+
+function capitalize(elem) {
+    return elem.charAt(0).toUpperCase() + elem.slice(1)
+}
+
+function addStateEventListener() {
+    $("#add-state-btn").on("click", function (e) {
+        e.preventDefault();
+        if ($('.state').length < 5) {
+            let newStateEntry = $("#first-state").clone().removeAttr("id");
             $("#state-container").append(newStateEntry);
             $('.state').last().append(`<button class='subtract-state-btn'>-</button>`)
-            $(".state").last().val("");  
-            subtractStateButtonListener(); 
+            $(".state").last().val("");
+            subtractStateButtonListener();
         }
         else {
-            let modalMessage = "Only 5 states allowed at a time"; 
+            let modalMessage = "Only 5 states allowed at a time";
             return renderModal(modalMessage)
         }
     })
 }
 
-function renderModal(message){
-    let modal = 
-    `<section class='modal'>
+function addStateOptions() {
+    $("#first-state").append(`<select class='state-val' name='state'>${stateOption()}</select>`);
+}
+
+function renderModal(message) {
+    let modal =
+        `<section class='modal'>
         <span class='modal-close'>X</span>
         <h1>${message}</h1>
     </section>
-    `; 
-    $('main').append(modal); 
-    modalCloseListener(); 
+    `;
+    $('main').append(modal);
+    modalCloseListener();
 }
 
-function modalCloseListener(){
-    $('.modal-close').on('click', function(e){
-        e.preventDefault(); 
+function modalCloseListener() {
+    $('.modal-close').on('click', function (e) {
+        e.preventDefault();
         closeModal()
     })
 }
 
-
-function closeModal(){
-    console.log("close"); 
-    $('.modal').remove(); 
+function closeModal() {
+    console.log("close");
+    $('.modal').remove();
 }
 
-function subtractStateButtonListener(){
-    $('.subtract-state-btn').on('click', function(e){
-        e.preventDefault(); 
-        $(this).closest('.state').empty(); 
+function subtractStateButtonListener() {
+    $('.subtract-state-btn').on('click', function (e) {
+        e.preventDefault();
+        $(this).closest('.state').remove();
     })
 }
 
-function addStateOptions(){
-    $("#first-state").append(`<select class='state-val' name='state'>${stateOption()}</select>`);
-}
-
-function stateOption(){
-    let stateOptions = stateList.map(stateObj => {
+function stateOption() {
+    let stateOptions = stateListMaster.map(stateObj => {
         return `<option value=${stateObj.abbr}>${stateObj.name}</option>`
     })
-    return stateOptions.join(); 
+    return stateOptions.join();
 }
 
-function addSubmitEventListener(){
-    $("#submit-btn").on("click", function(e){
-        e.preventDefault(); 
-        let state = $(".state-val").map(function(){
-            return $(this).val(); 
-        }).get(); 
-        let energyType = $("input[name=energy]:checked")[0].id; 
-        fetchData(state, energyType);
+function submitEventListener() {
+    $("#submit-btn").on("click", function (e) {
+        e.preventDefault();
+        getFormData(getStates(), getEnergyTypes()); 
     })
 }
 
-function fetchData(state, energyType){
-Promise.all(getUrls(state, energyType).map(url => 
-    fetch(url)
-        .then(checkStatus)
-        .then(parseJSON)
-        .then(getDataObj)
-        .catch(err => console.log(err))
-    ))
-    .then(data => display(data, state, energyType))
+function getStates(){
+    return $(".state-val").map(function () {
+        return $(this).val();
+    }).get();
 }
 
-function getUrls(state, energyType){
-    return state.map(key => {
-        return `https://developer.nrel.gov/api/cleap/v1/state_co2_emissions?state_abbr=${key}&type=${energyType}&api_key=${apiKey}`;
-    })  
+function getEnergyTypes(){
+    let checkedEnergyTypes = []; 
+    $.each($("input[name='energy']:checked"), function () {
+        let energyType = $(this).data("energy");
+        checkedEnergyTypes.push(energyType);
+    });
+    return checkedEnergyTypes; 
 }
 
-function checkStatus(response){
-    if(response.ok){
+function getFormData(checkedStates, checkedEnergyTypes) {
+    Promise.all(fetchData(checkedStates, checkedEnergyTypes))
+        .then(function (dataSet) {
+            renderChart(dataSet, checkedStates, checkedEnergyTypes);
+            checkedEnergyTypes = [];
+        })
+}
+
+function fetchData(checkedStates, checkedEnergyTypes) {
+    return checkedStates.map(state => {
+        return Promise.all(getUrls(state, checkedEnergyTypes).map(url =>
+            fetch(url)
+                .then(checkStatus)
+                .then(parseJSON)
+                .then(getDataObj)
+                .catch(err => console.log(err))
+        ))
+            .then(data => sumCO2EmissionsTotal(data))
+    })
+}
+
+function getUrls(state, checkedEnergyTypes) {
+    return checkedEnergyTypes.map(energyType => {
+        return `https://developer.nrel.gov/api/cleap/v1/state_co2_emissions?state_abbr=${state}&type=${energyType}&api_key=${apiKey}`;
+    })
+}
+
+function checkStatus(response) {
+    if (response.ok) {
         return Promise.resolve(response)
     } else {
         return Promise.reject(new Error(response.statusText))
     }
 }
 
-function parseJSON(response){
+function parseJSON(response) {
     return response.json()
 }
 
-function getDataObj(response){
+function getDataObj(response) {
     return response.result[0]
 }
 
-function display(response, state, energyType){ 
-    resetCanvas(energyType, state);  
-    let responseData = response[0].data; 
+function renderChart(response, checkedStates, checkedEnergyTypes) {
+    console.log("render chart", checkedEnergyTypes)
+    renderCanvas(checkedEnergyTypes);
+    let responseData = response[0];
     var ctx = document.getElementById('chart-canvas').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: Object.keys(responseData),
-            datasets: createDataSet(state, response), 
+            datasets: createDataSet(response, checkedStates, checkedEnergyTypes),
         },
         options: {
             scales: {
                 yAxes: [{
                     ticks: {
-                        fontSize: 16, 
+                        fontSize: 16,
                         fontColor: 'white'
                     }
                 }],
                 xAxes: [{
                     ticks: {
-                        fontSize: 16, 
+                        fontSize: 16,
                         fontColor: 'white'
                     }
-                }] 
+                }]
             },
             legend: {
-                labels:{
-                  fontSize: 18, 
-                  fontColor: 'white'
+                labels: {
+                    fontSize: 18,
+                    fontColor: 'white'
+                }
+            },
+            layout: {
+                padding: {
+                    left: 10
                 }
             }
         }
     });
-    $("#chart-title").append("<div id='y-axis-label'>Million Metric Tons CO2</div>");
 }
 
-function resetCanvas(energyType, state){
-    clearChart(); 
-    createChart();
-    createTitle(energyType, state); 
+function renderCanvas(checkedEnergyTypes) {
+    emptyMainContent();
+    $('main').append(energyTypeContent(checkedEnergyTypes))
+    $('main').append(`<section id='chart'></section>`);
+    $("#chart").append(canvasContent());
+    closeChartEventListener(); 
 }
 
-function clearChart(){
-    $("#chart").empty(); 
+function energyTypeContent(checkedEnergyTypes){
+    return  `<h2>Energy Types: ${checkedEnergyTypes.map(energy => capitalize(energy)).join(", ")}</h2>`
 }
 
-function createChart(){
-    $("#chart").append("<div id='chart-title'></div><canvas id='chart-canvas'></canvas>")
+function canvasContent(checkedEnergyTypes){
+    return `<div id='chart-title'>
+                <div id='y-axis-label'>CO<span><sub>2</sub></span> Emissions (million metric tons)
+                </div>
+                <div>
+                <span id='close-chart' class='modal-close'>X</span>
+                </div>
+            </div>
+            <canvas id='chart-canvas'></canvas>`
 }
 
-function createTitle(energyType, state){
-    let title = `${energyType.charAt(0).toUpperCase() + energyType.slice(1)} Carbon Dioxide Emissions: ${state.join(", ")}`;
-    $("#chart-title").append(`<h3>${title}</h3>`); 
+function closeChartEventListener(){
+    $("#close-chart").on("click", function(){
+        emptyMainContent(); 
+        renderCompareStatesForm(); 
+    })
 }
 
-function createDataSet(state, response){
-    let responseDataSet = [];
+function createDataSet(response, checkedStates, checkedEnergyTypes) {
     let lineColors = ["#4286f4", "#f44141", "#3ea84c", "#eaea19", "#ffa100"];
-    for(let i=0; i<state.length; i++){
-        let responseData = response[i].data; 
+    let responseDataSet = [];
+    for (let i = 0; i < checkedStates.length; i++) {
         responseDataSet.push({
-            label: `${state[i]}`, 
-            fill: false, 
+            label: `${checkedStates[i]}`,
+            fill: false,
             borderColor: lineColors[i],
-            data: Object.values(responseData).map(dataPoint => dataPoint.toFixed(3)),
+            data: Object.values(response[i]),
             pointBackgroundColor: 'white',
         })
     }
     return responseDataSet;
 }
 
-function launchApp(){
-    renderLandingPage()
-    startEventListener(); 
+function sumCO2EmissionsTotal(response) {
+    let co2EmissionObj = {};
+    Object.keys(response[0].data).forEach(year => {
+        return co2EmissionObj[year] = sumCO2EmissionsYear(response, year)
+    })
+    return co2EmissionObj
 }
+
+function sumCO2EmissionsYear(response, year) {
+        let sum = 0;
+        response.forEach(energyType => {
+            sum += energyType.data[year]
+        })
+        return sum.toFixed(3)
+    }
+
 
 $(launchApp)

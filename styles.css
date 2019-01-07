@@ -28,12 +28,6 @@ header h1, h2{
     text-align: center;
     color: white;
     font-family: 'Exo 2', sans-serif;
-    font-size: 24px;
-    line-height: 16px;
-}
-
-header h2{
-    font-size: 16px; 
 }
 
 button{
@@ -67,6 +61,11 @@ button:hover{
     display: block;
 }
 
+#chart{
+    border: 1px solid white;
+    padding: 5px;
+}
+
 @media screen and (min-width: 479px) {
     #page-chart-choice{
         display: flex;
@@ -76,7 +75,7 @@ button:hover{
     }
 }
 
-.chart-choice-section{
+#page-chart-choice section {
     display: block;
     margin: 25px auto;
     border: 5px solid white;
@@ -92,6 +91,13 @@ button:hover{
     margin: 10px auto;
     text-align: center;
     color: white;
+}
+
+#page-compare fieldset{
+    border: 5px solid white;
+    width: 50%;
+    min-width: 200px;
+    margin-bottom: 25px;
 }
 
 form{
@@ -137,9 +143,12 @@ form select:hover, input:hover{
 }
 
 .modal-close{
-    font-size: 20px;
+    font-size: 16px;
     float: right;
-    margin-right: 10px;
+    margin-right: 5px;
+    border: 2px solid white;
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .modal-close:hover{
