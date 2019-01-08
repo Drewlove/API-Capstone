@@ -8,48 +8,19 @@ API Call to get each state's GDP from 1997-2016:
 https://apps.bea.gov/api/data/?UserID=A1E0048C-FE51-40B6-B0BE-F8D7D58C1549&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=STATE&ResultFormat=json
 TableName is what determines what economic data you are retrieving
 For a list of tables see: 
-Appendix N
-page 1 of 9; 
-
-
-
-incorporate feedback
--Add an X, so you can close a graph once it's been generated
--Add titles\directions at the head of the state inputs and the 
-energy type inputs. Need to more clearly communicate to user
-what those inputs are for. 
+Appendix N page 1 of 9; 
 
 
 Notes: 
 -Remove "add" in front of function name for every state listener
 
 Next Features: 
--Use checkboxes for energy types to cumulatively add up CO2 emissions
+ each energy type. So one line for industrial, one line for commercial, etc.
 
--User can see CO2 emissions per capita by making API calls to us census
---will show 3 data points, 1990, 2000, 2010
-
--User can see total of all 50 states CO2 emissions by energy type from 1980-2016
-
--User can select one state, and view a graph that charts the CO2 emissions
-of each energy type. So one line for industrial, one line for commercial, etc.
+ Move data into a global object, stateGdpData, and
 
 */
 
-
-
-/*
-
-On submit: 
-Empty main content
-then render chart
-
-add an X that when clicked closes the chart and returns user to form
-where they can choose states and energy type
-
-Firebase GDP data
-
-*/
 
 const stateListMaster = [
     { name: "Alabama", abbr: "AL" },
@@ -104,7 +75,28 @@ const stateListMaster = [
     { name: "Wyoming", abbr: "WY" }
 ]
 
-const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t'
+const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t';
+const stateGdpApiKey = 'A1E0048C-FE51-40B6-B0BE-F8D7D58C1549';
+
+let globalDataState = {}
+
+function call(api, state){
+  fetch(api)
+  .then(response => response.json())
+  .then(responseJSON => getStateGdpObj(responseJSON.BEAAPI.Results.Data, stateAbbr))
+}
+
+function getStateGdpObj(responseArr, stateAbbr){
+  stateGdpObj = {name: stateAbbr, data: getGdpData(responseArr)};
+}
+
+function getGdpData(responseArr){
+  let data = {}
+  responseArr.forEach(obj => {
+    data[obj.TimePeriod] = obj.DataValue
+  })
+  return data
+}
 
 function launchApp() {
     renderLandingPage();
@@ -224,25 +216,30 @@ function addStateOptions() {
 }
 
 function renderModal(message) {
+    toggleOpaque(); 
     let modal =
         `<section class='modal'>
         <span class='modal-close'>X</span>
         <h1>${message}</h1>
     </section>
     `;
-    $('main').append(modal);
+    $('body').append(modal);
     modalCloseListener();
 }
+function toggleOpaque(){
+    $('main').toggleClass('opaque')
+}
+
 
 function modalCloseListener() {
     $('.modal-close').on('click', function (e) {
         e.preventDefault();
         closeModal()
+        toggleOpaque(); 
     })
 }
 
 function closeModal() {
-    console.log("close");
     $('.modal').remove();
 }
 
@@ -284,10 +281,17 @@ function getEnergyTypes(){
 
 function getFormData(checkedStates, checkedEnergyTypes) {
     Promise.all(fetchData(checkedStates, checkedEnergyTypes))
-        .then(function (dataSet) {
-            renderChart(dataSet, checkedStates, checkedEnergyTypes);
+        .then(function () {
+            updateGlobalDataState(checkedStates, checkedEnergyTypes); 
+            renderChart();
             checkedEnergyTypes = [];
         })
+}
+
+function updateGlobalDataState(checkedStates, checkedEnergyTypes){
+    globalDataState.states = checkedStates; 
+    globalDataState.energyTypes = checkedEnergyTypes; 
+    globalDataState.years = Object.keys(globalDataState[checkedStates[0]].co2Emissions)
 }
 
 function fetchData(checkedStates, checkedEnergyTypes) {
@@ -299,7 +303,7 @@ function fetchData(checkedStates, checkedEnergyTypes) {
                 .then(getDataObj)
                 .catch(err => console.log(err))
         ))
-            .then(data => sumCO2EmissionsTotal(data))
+            .then(data => sumCO2EmissionsTotal(data, checkedEnergyTypes))
     })
 }
 
@@ -325,16 +329,46 @@ function getDataObj(response) {
     return response.result[0]
 }
 
-function renderChart(response, checkedStates, checkedEnergyTypes) {
-    console.log("render chart", checkedEnergyTypes)
-    renderCanvas(checkedEnergyTypes);
-    let responseData = response[0];
+function sumCO2EmissionsTotal(response) { 
+    return globalDataState[getStateName(response)] = {
+        name: getStateName(response),
+        co2Emissions: getCo2Data(response), 
+    }; 
+}
+
+function getStateName(response){
+    return response[0].geography.slice(4)
+}
+
+function getCo2Data(response){
+    let co2Data = {}; 
+    Object.keys(response[0].data).forEach(year => {
+        return co2Data[year] = sumCO2EmissionsYear(response, year)
+    })
+    return co2Data
+}
+ 
+function sumCO2EmissionsYear(response, year) {
+        let sum = 0;
+        response.forEach(energyType => {
+            sum += energyType.data[year]
+        })
+        return sum.toFixed(3)
+    }
+
+function renderChart() {
+    console.log("render chart")
+    //make sure this function works, change references listed below to 
+    //refer to the globalDataState
+    //THEN, work on incorporating the GDP per million metric tons of CO2
+    //see codepen: https://codepen.io/thisisdrewlove/pen/ebKbQZ?editors=0010
+    renderCanvas(globalDataState.energyTypes);
     var ctx = document.getElementById('chart-canvas').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Object.keys(responseData),
-            datasets: createDataSet(response, checkedStates, checkedEnergyTypes),
+            labels: globalDataState.years,
+            datasets: createDataSet(),
         },
         options: {
             scales: {
@@ -368,10 +402,24 @@ function renderChart(response, checkedStates, checkedEnergyTypes) {
 
 function renderCanvas(checkedEnergyTypes) {
     emptyMainContent();
-    $('main').append(energyTypeContent(checkedEnergyTypes))
+    $('main').append(`<div id='chart-top'></div>`)
+    $('#chart-top').append(energyTypeContent(checkedEnergyTypes));
+    $('#chart-top').append(stateGdpBtn()); 
     $('main').append(`<section id='chart'></section>`);
     $("#chart").append(canvasContent());
     closeChartEventListener(); 
+    stateGdpEventListener(); 
+}
+
+function stateGdpBtn(){
+    return `<span><button id='btn-gdp'>GDP</button></span>`
+}
+
+function stateGdpEventListener(){
+    $('#btn-gdp').on('click', function(){
+        fetch(`https://apps.bea.gov/api/data/?UserID=${stateGdpApiKey}&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=${stateAbbr}&ResultFormat=json`)
+        .then(data => console.log(data))
+    })
 }
 
 function energyTypeContent(checkedEnergyTypes){
@@ -396,36 +444,23 @@ function closeChartEventListener(){
     })
 }
 
-function createDataSet(response, checkedStates, checkedEnergyTypes) {
+function createDataSet() {
     let lineColors = ["#4286f4", "#f44141", "#3ea84c", "#eaea19", "#ffa100"];
     let responseDataSet = [];
-    for (let i = 0; i < checkedStates.length; i++) {
+    for (let i = 0; i < globalDataState.states.length; i++) {
+        console.log(globalDataState.AL)
+        let currentState = globalDataState.states[i]; 
         responseDataSet.push({
-            label: `${checkedStates[i]}`,
+            label: currentState,
             fill: false,
             borderColor: lineColors[i],
-            data: Object.values(response[i]),
+            data: Object.values(globalDataState[currentState].co2Emissions),
             pointBackgroundColor: 'white',
         })
     }
     return responseDataSet;
 }
 
-function sumCO2EmissionsTotal(response) {
-    let co2EmissionObj = {};
-    Object.keys(response[0].data).forEach(year => {
-        return co2EmissionObj[year] = sumCO2EmissionsYear(response, year)
-    })
-    return co2EmissionObj
-}
-
-function sumCO2EmissionsYear(response, year) {
-        let sum = 0;
-        response.forEach(energyType => {
-            sum += energyType.data[year]
-        })
-        return sum.toFixed(3)
-    }
 
 
 $(launchApp)
