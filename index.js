@@ -1,124 +1,136 @@
 'use strict';
-/*
-*** data of gdp by state, 1997-2016
-https://www.eia.gov/state/seds/sep_use/notes/use_gdp.pdf
-BEA Data API: A1E0048C-FE51-40B6-B0BE-F8D7D58C1549
 
-API Call to get each state's GDP from 1997-2016: 
-https://apps.bea.gov/api/data/?UserID=A1E0048C-FE51-40B6-B0BE-F8D7D58C1549&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=STATE&ResultFormat=json
-TableName is what determines what economic data you are retrieving
-For a list of tables see: 
-Appendix N page 1 of 9; 
+const stateListMaster = {
+    Alabama: { name: "Alabama", abbr: "AL" },
+    Alaska: {name: "Alaska", abbr: "AK" },
+    Arizona: { name: "Arizona", abbr: "AZ" },
+    Arkansas: {name: "Arkansas", abbr: "AR" },
+    California: {name: "California", abbr: "CA"},
+    Colorado: {name: "Colorado", abbr: "CO"},
+    Connecticut: {name: "Connecticut", abbr: "CT"},
+    Delaware: {name: "Delaware", abbr: "DE"},
+    Florida: {name: "Florida", abbr: "FL" },
+    Georgia: {name: "Georgia", abbr: "GA"},
+    Hawaii: {name: "Hawaii", abbr: "HI"},
+    Idaho: {name: "Idaho", abbr: "ID"},
+    Illinois: {name: "Illinois", abbr: "IL"},
+    Indiana: {name: "Indiana", abbr: "IN"},
+    Iowa: {name: "Iowa", abbr: "IA"},
+    Kansas: {name: "Kansas", abbr: "KS"},
+    Kentucky: {name: "Kentucky", abbr: "KY"},
+    Louisana: {name: "Louisana", abbr: "LA"},
+    Maine: {name: "Maine", abbr: "ME"},
+    Maryland: {name: "Maryland", abbr: "MD"},
+    Masschusetts: {name: "Massachusetts", abbr: "MA"},
+    Michigan: {name: "Michigan", abbr: "MI"},
+    Minnesota: {name: "Minnesota", abbr: "MN"},
+    Mississippi: {name: "Mississippi", abbr: "MS"},
+    Missouri: {name: "Missouri", abbr: "MO"},
+    Montana: {name: "Montana", abbr: "MT"},
+    Nebraska: {name: "Nebraska", abbr: "NE"},
+    Nevada: {name: "Nevada", abbr: "NV"},
+    NewHampshire: {name: "New Hampshire", abbr: "NH"},
+    NewJersey: {name: "New Jersey", abbr: "NJ"},
+    NewMexico: {name: "New Mexico", abbr: "NM"},
+    NewYork: {name: "New York", abbr: "NY"},
+    NorthCarolina: {name: "North Carolina", abbr: "NC"},
+    NorthDakota: {name: "North Dakota", abbr: "ND"},
+    Ohio: {name: "Ohio", abbr: "OH"},
+    Oklahoma: {name: "Oklahoma", abbr: "OK"},
+    Oregon: {name: "Oregon", abbr: "OR"},
+    Pennsylvania: {name: "Pennsylvania", abbr: "PA"},
+    RhodeIsland: {name: "Rhode Island", abbr: "RI"},
+    SouthCarolina: {name: "South Carolina", abbr: "SC"},
+    SouthDakota: {name: "South Dakota", abbr: "SD"},
+    Tennessee: {name: "Tennessee", abbr: "TN"},
+    Texas: {name: "Texas", abbr: "TX"},
+    Utah: {name: "Utah", abbr: "UT"},
+    Vermont: {name: "Vermont", abbr: "VT"},
+    Virginia: {name: "Virginia", abbr: "VA"},
+    Washington: {name: "Washington", abbr: "WA"},
+    WestVirginia: {name: "West Virginia", abbr: "WV"},
+    Wisconsin: {name: "Wisconsin", abbr: "WI"},
+    Wyoming: {name: "Wyoming", abbr: "WY"}
+}
+
+//if user picks multiple energy types, then it combines all those energy types
+//Include a more clear phrasing in the graph that specifies this. 
+//"Combined Total of CO2 Emissions for...[insert energy types here]"
+//
+
+//if you "check off" both states after you've clicked for the graph
+//you get a -1 to 1 
+
+//once you're in GDP view you should be able to click to go back to CO2 emissions 
+//graph 
+
+//For energy types, if you click total, it should uncheck all of the others 
+//you can't click total, AND other energy types 
+//or just eliminate the "total" option 
+
+//if user has selected same states, and then clicks submit, issue a warning that they
+//cannot choose the same state multiple times
 
 
-Notes: 
--Remove "add" in front of function name for every state listener
+// final polish make sure syntax and indentation is the same
+// look at functions and variables, limit global variables
+// name clearly indicates what function does, function does a single thing
+//          what about functions that need multiple functions?
+// every function should take an argument (pure functions)
+// the function should require a known input, otherwise it's likely 
+// to create bugs
+// each function should return a value, which makes it clear
+// where the function ends, even if you're just returning a function
 
-Next Features: 
- each energy type. So one line for industrial, one line for commercial, etc.
+//try to make a function not span more than 5-10 lines of code
 
- Move data into a global object, stateGdpData, and
-
-*/
-
-
-const stateListMaster = [
-    { name: "Alabama", abbr: "AL" },
-    { name: "Alaska", abbr: "AK" },
-    { name: "Arizona", abbr: "AZ" },
-    { name: "Arkansas", abbr: "AR" },
-    { name: "California", abbr: "CA" },
-    { name: "Colorado", abbr: "CO" },
-    { name: "Connecticut", abbr: "CT" },
-    { name: "Delaware", abbr: "DE" },
-    { name: "Florida", abbr: "FL" },
-    { name: "Georgia", abbr: "GA" },
-    { name: "Hawaii", abbr: "HI" },
-    { name: "Idaho", abbr: "ID" },
-    { name: "Illinois", abbr: "IL" },
-    { name: "Indiana", abbr: "IN" },
-    { name: "Iowa", abbr: "IA" },
-    { name: "Kansas", abbr: "KS" },
-    { name: "Kentucky", abbr: "KY" },
-    { name: "Louisiana", abbr: "LA" },
-    { name: "Maine", abbr: "ME" },
-    { name: "Maryland", abbr: "MD" },
-    { name: "Massachusetts", abbr: "MA" },
-    { name: "Michigan", abbr: "MI" },
-    { name: "Minnesota", abbr: "MN" },
-    { name: "Mississippi", abbr: "MS" },
-    { name: "Missouri", abbr: "MO" },
-    { name: "Montana", abbr: "MT" },
-    { name: "Nebraska", abbr: "NE" },
-    { name: "Nevada", abbr: "NV" },
-    { name: "New Hampshire", abbr: "NH" },
-    { name: "New Jersey", abbr: "NJ" },
-    { name: "New Mexico", abbr: "NM" },
-    { name: "New York", abbr: "NY" },
-    { name: "North Carolina", abbr: "NC" },
-    { name: "North Dakota", abbr: "ND" },
-    { name: "Ohio", abbr: "OH" },
-    { name: "Oklahoma", abbr: "OK" },
-    { name: "Oregon", abbr: "OR" },
-    { name: "Pennsylvania", abbr: "PA" },
-    { name: "Rhode Island", abbr: "RI" },
-    { name: "South Carolina", abbr: "SC" },
-    { name: "South Dakota", abbr: "SD" },
-    { name: "Tennessee", abbr: "TN" },
-    { name: "Texas", abbr: "TX" },
-    { name: "Utah", abbr: "UT" },
-    { name: "Vermont", abbr: "VT" },
-    { name: "Virginia", abbr: "VA" },
-    { name: "Washington", abbr: "WA" },
-    { name: "West Virginia", abbr: "WV" },
-    { name: "Wisconsin", abbr: "WI" },
-    { name: "Wyoming", abbr: "WY" }
-]
+//redo event listeners, have onClick, then name the function
+//that should be performed
 
 const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t';
 const stateGdpApiKey = 'A1E0048C-FE51-40B6-B0BE-F8D7D58C1549';
 
-let globalDataState = {}
+let globalState = {}
 
-function call(api, state){
-  fetch(api)
-  .then(response => response.json())
-  .then(responseJSON => getStateGdpObj(responseJSON.BEAAPI.Results.Data, stateAbbr))
+
+//Utility Functions
+function capitalize(elem) {
+    return elem.charAt(0).toUpperCase() + elem.slice(1)
 }
 
-function getStateGdpObj(responseArr, stateAbbr){
-  stateGdpObj = {name: stateAbbr, data: getGdpData(responseArr)};
+function getStateAbbr(obj){
+    return obj.geography.slice(4)
 }
 
-function getGdpData(responseArr){
-  let data = {}
-  responseArr.forEach(obj => {
-    data[obj.TimePeriod] = obj.DataValue
-  })
-  return data
+function getEnergyType(obj){
+    let energyType = obj.name.split(' ')[0];  
+    return lowerCase(energyType)
 }
 
+function lowerCase(word){
+    return word.charAt(0).toLowerCase() + word.slice(1); 
+}
+
+//Launch Application
 function launchApp() {
     renderLandingPage();
-    startEventListener();
 }
 
 function renderLandingPage() {
     let landingPage =
         `<section class='landing'>
         <img alt='USA lights at night' src='https://bit.ly/2EZpU39'>
-        <button>START</button>
+        <button class='light-button'>START</button>
     </section>`;
     $('main').append(landingPage)
-
+    startEventListener();
 }
 
 function startEventListener() {
     $(".landing button").on("click", function () {
         $(".landing").addClass("hidden");
         emptyMainContent();
-        renderChartChoice();
-        compareEventListener();
+        renderCompareStatesForm();
     })
 }
 
@@ -126,93 +138,112 @@ function emptyMainContent() {
     $('main').empty();
 }
 
-function renderChartChoice() {
-    $('main').append(chartChoice);
-}
-
-function chartChoice(){
-    return `<section id='page-chart-choice'>
-            <section class='compare'>
-            <button>Compare</button>
-                    <p class='chart-choice-p'>Compare multiple state's CO2 emissions</p>
-            </section>
-            <section class='analyze-choice'>
-                <button>Analyze State</button>
-                <p class='chart-choice-p'>Analyze a single state's CO2 emissions</p>
-            </section>
-            </section>`
-        } 
-
-function compareEventListener() {
-    $(".compare button").on("click", function () {
-        emptyMainContent();
-        renderCompareStatesForm();
-    })
-}
-
 function renderCompareStatesForm() {
     let compareStateForm =
-        `<section id='page-compare'>
+    `<section id='page-compare'>
     <form>
     <fieldset>
     <legend>Select States to Compare</legend>
       <div id='state-container'>
         <div id='first-state' class='state'>
           <label for='state'>State:</label>
+          <select class='state-val' name='state'>${getStateOptions()}</select>      
         </div>
       </div>
-      <button id='add-state-btn'>+</button>
+      <button id='add-state-btn' class='light-button'>+</button>
       <span>Add State</span>
       </fieldset>
       <fieldset>
       <legend>Choose CO<sub>2</sub> Emissions by Energy Type</legend>
       ${renderEnergyInputs()}
       </fieldset>
-      <button id='submit-btn' type='submit'>Submit</button>
+      <button id='submit-btn' type='submit' class='light-button'>Submit</button>
     </form>`
-
-    $('main').append(compareStateForm);
-    addStateEventListener();
-    addStateOptions();
+    $('main').append(compareStateForm); 
+    backgroundGradient(); 
+    addStateEventListener(); 
+    totalEnergyEventListener(); 
     submitEventListener();
+    instantiateGlobalStateFetchedData(); 
+}
+
+function instantiateGlobalStateFetchedData(){
+    globalState.fetchedData = []; 
+}
+
+function getStateOptions() {
+    let stateNames = Object.keys(stateListMaster); 
+    return stateNames.map(key => {
+        return `<option value=${key.toString()}>${stateListMaster[key].name}</option>`
+    }).join("");
 }
 
 function renderEnergyInputs() {
+    globalState.energyTypes = []; 
     let energyTypes = ["commercial", "electric", "residential", "industrial", "transportation", "total"];
     return energyTypes.map(energy => {
-        return (
-            `<div>
-            <input type='checkbox' data-energy=${energy} name="energy"}>
-            <label for=${energy}>${capitalize(energy)}</label>  
-        </div>`
-        )
-    })
-    .join("");
+        return energyInput(energy); 
+    }).join("");
 }
 
-function capitalize(elem) {
-    return elem.charAt(0).toUpperCase() + elem.slice(1)
+function energyInput(energy){
+    return `<div>
+    <input id=${energy}-energy type='checkbox' data-energy=${energy} name="energy" class="energy-input"}>
+    <label for=${energy}>${capitalize(energy)}</label>  
+</div>`
+}
+
+
+function backgroundGradient(){
+    $('body').addClass('background-gradient'); 
+}
+
+function updateGlobalStateTotalEnergy(){
+    $('.energy-input').each(function (){
+        if($(this).prop("checked") === true){
+            return $(this).prop("checked", false)
+        }      
+    })
+    $('#total-energy').prop("checked", true)
+    globalState.energyTypes = ["total"]
 }
 
 function addStateEventListener() {
     $("#add-state-btn").on("click", function (e) {
         e.preventDefault();
         if ($('.state').length < 5) {
-            let newStateEntry = $("#first-state").clone().removeAttr("id");
-            $("#state-container").append(newStateEntry);
-            $('.state').last().append(`<button class='subtract-state-btn'>-</button>`)
-            $(".state").last().val("");
-            subtractStateButtonListener();
-        }
-        else {
+            addState(); 
+        } else {
             let modalMessage = "Only 5 states allowed at a time";
             return renderModal(modalMessage)
         }
     })
 }
 
-function addStateOptions() {
-    $("#first-state").append(`<select class='state-val' name='state'>${stateOption()}</select>`);
+function addState(){
+    let newStateEntry = $("#first-state").clone(true).removeAttr("id");
+    $("#state-container").append(newStateEntry)
+    let newStateName = $('.state').last().find('.state-val').val(); 
+    $('.state').last().append(`<button class='remove-state-btn light-button'>-</button>`)
+    removeStateEventListener(); 
+}
+
+function removeStateEventListener(){
+    $('.state').last().find('.remove-state-btn').on('click', function(e){
+        e.preventDefault;
+        let self = $(this).closest('.state').remove(); 
+    }) 
+}
+
+function totalEnergyEventListener(){
+          $(".energy-input").on("click", function(){
+              if($(this).attr("id") !== "total-energy"){
+                  $("#total-energy").prop("checked", false)
+            } else if($(this).attr("id") === "total-energy"){
+                $(".energy-input").prop("checked", false)
+                $("#total-energy").prop("checked", true)
+            }
+          })
 }
 
 function renderModal(message) {
@@ -226,16 +257,16 @@ function renderModal(message) {
     $('body').append(modal);
     modalCloseListener();
 }
+
 function toggleOpaque(){
     $('main').toggleClass('opaque')
 }
 
-
 function modalCloseListener() {
     $('.modal-close').on('click', function (e) {
         e.preventDefault();
-        closeModal()
         toggleOpaque(); 
+        closeModal()
     })
 }
 
@@ -243,140 +274,149 @@ function closeModal() {
     $('.modal').remove();
 }
 
-function subtractStateButtonListener() {
-    $('.subtract-state-btn').on('click', function (e) {
-        e.preventDefault();
-        $(this).closest('.state').remove();
-    })
-}
-
-function stateOption() {
-    let stateOptions = stateListMaster.map(stateObj => {
-        return `<option value=${stateObj.abbr}>${stateObj.name}</option>`
-    })
-    return stateOptions.join();
-}
-
 function submitEventListener() {
     $("#submit-btn").on("click", function (e) {
-        e.preventDefault();
-        getFormData(getStates(), getEnergyTypes()); 
+        e.preventDefault(); 
+        verifyStateSelection();
     })
 }
 
-function getStates(){
-    return $(".state-val").map(function () {
+function verifyStateSelection(){
+    updateGlobalStateStates(); 
+    let statesList = globalState.statesList; 
+    let deDupeStatesList = []; 
+    statesList.forEach(state => {
+        if(deDupeStatesList.indexOf(state) === -1){
+            deDupeStatesList.push(state)
+        } 
+    })
+    if(deDupeStatesList.length === statesList.length){
+        verifyEnergyTypeSelection();
+    }
+    else {
+        renderModal("You cannot choose the same state multiple times")
+    }
+}
+
+function updateGlobalStateStates(){
+    globalState.statesList = []; 
+    globalState.statesList =  $(".state-val").map(function () {
         return $(this).val();
     }).get();
 }
 
-function getEnergyTypes(){
-    let checkedEnergyTypes = []; 
+function verifyEnergyTypeSelection(){
+    updateGlobalStateEnergyType();
+    if(globalState.energyTypes.length === 0){
+        return renderModal("You must select at least one energy type")
+    } else {
+        getFormData(globalState.statesList, globalState.energyTypes); 
+        updateGlobalStateFetchedData("totalCO2emissions") 
+    }
+}
+
+function updateGlobalStateEnergyType(){
+    globalState.energyTypes = []; 
     $.each($("input[name='energy']:checked"), function () {
         let energyType = $(this).data("energy");
-        checkedEnergyTypes.push(energyType);
+        globalState.energyTypes.push(energyType);
     });
-    return checkedEnergyTypes; 
 }
 
 function getFormData(checkedStates, checkedEnergyTypes) {
-    Promise.all(fetchData(checkedStates, checkedEnergyTypes))
-        .then(function () {
-            updateGlobalDataState(checkedStates, checkedEnergyTypes); 
-            renderChart();
-            checkedEnergyTypes = [];
+    Promise.all(getPromises(checkedStates, checkedEnergyTypes))
+    .then(formatResponse)
+    .then(response => updateGlobalState(response, checkedStates, checkedEnergyTypes))
+    .then(updateGlobalStateTotalCO2)
+    .then(renderChart)
+    .catch(error => console.log("error is", error))
+}
+
+function getPromises(checkedStates, checkedEnergyTypes){
+    const urlList = []; 
+    checkedStates.forEach(state => {
+        let stateAbbr = stateListMaster[state].abbr;
+        checkedEnergyTypes.map(energyType => {
+            return urlList.push(`https://developer.nrel.gov/api/cleap/v1/state_co2_emissions?state_abbr=${stateAbbr}&type=${energyType}&api_key=${apiKey}`)
         })
-}
+    })  
+    return fetchUrls(urlList); 
+} 
 
-function updateGlobalDataState(checkedStates, checkedEnergyTypes){
-    globalDataState.states = checkedStates; 
-    globalDataState.energyTypes = checkedEnergyTypes; 
-    globalDataState.years = Object.keys(globalDataState[checkedStates[0]].co2Emissions)
-}
 
-function fetchData(checkedStates, checkedEnergyTypes) {
-    return checkedStates.map(state => {
-        return Promise.all(getUrls(state, checkedEnergyTypes).map(url =>
-            fetch(url)
-                .then(checkStatus)
-                .then(parseJSON)
-                .then(getDataObj)
-                .catch(err => console.log(err))
-        ))
-            .then(data => sumCO2EmissionsTotal(data, checkedEnergyTypes))
-    })
-}
-
-function getUrls(state, checkedEnergyTypes) {
-    return checkedEnergyTypes.map(energyType => {
-        return `https://developer.nrel.gov/api/cleap/v1/state_co2_emissions?state_abbr=${state}&type=${energyType}&api_key=${apiKey}`;
-    })
-}
-
-function checkStatus(response) {
-    if (response.ok) {
-        return Promise.resolve(response)
-    } else {
-        return Promise.reject(new Error(response.statusText))
-    }
-}
-
-function parseJSON(response) {
-    return response.json()
-}
-
-function getDataObj(response) {
-    return response.result[0]
-}
-
-function sumCO2EmissionsTotal(response) { 
-    return globalDataState[getStateName(response)] = {
-        name: getStateName(response),
-        co2Emissions: getCo2Data(response), 
-    }; 
-}
-
-function getStateName(response){
-    return response[0].geography.slice(4)
-}
-
-function getCo2Data(response){
-    let co2Data = {}; 
-    Object.keys(response[0].data).forEach(year => {
-        return co2Data[year] = sumCO2EmissionsYear(response, year)
-    })
-    return co2Data
-}
- 
-function sumCO2EmissionsYear(response, year) {
-        let sum = 0;
-        response.forEach(energyType => {
-            sum += energyType.data[year]
+function fetchUrls(urlArray){
+    return urlArray.map(url => {
+        return fetch(url)
+        .then(response => {
+            if(response.ok) return Promise.resolve(response.json())
+            else return Promise.reject(new Error(response.statusText))
         })
-        return sum.toFixed(3)
-    }
+        .catch(error => console.log("error is", error)) 
+    });
+}  
 
-function renderChart() {
-    console.log("render chart")
-    //make sure this function works, change references listed below to 
-    //refer to the globalDataState
-    //THEN, work on incorporating the GDP per million metric tons of CO2
-    //see codepen: https://codepen.io/thisisdrewlove/pen/ebKbQZ?editors=0010
-    renderCanvas(globalDataState.energyTypes);
+function formatResponse(response){
+    return response.map(obj => {
+        return obj.result[0]
+    })
+}
+
+function updateGlobalState(response, checkedStates, checkedEnergyTypes){
+    updateGlobalStateGraph("totalCO2emissions")
+    globalState.years = Object.keys(response[0].data);
+    globalState.stateData = getStateCO2EmissionsArr(response, checkedStates, checkedEnergyTypes); 
+    globalState.yAxisLabel = "CO2 Emissions (million metric tons)";
+}
+
+function getStateCO2EmissionsArr(response, checkedStates, checkedEnergyTypes) {  
+    let CO2EmissionsByState = {};   
+    checkedStates.forEach(state => {
+        return CO2EmissionsByState[state] = getCO2EmissionsByEnergyObj(response, state, checkedEnergyTypes); 
+    })
+    return CO2EmissionsByState; 
+}
+
+function getCO2EmissionsByEnergyObj(response, state, checkedEnergyTypes){
+    let energyEmissionsObj = {}; 
+    checkedEnergyTypes.forEach(energyType => {
+        energyEmissionsObj[energyType] = getEnergyCo2Emissions(response, state, energyType)
+    })
+    return energyEmissionsObj
+}
+
+function getEnergyCo2Emissions(response, state, energyType){
+    let stateAbbr = stateListMaster[state].abbr
+    let match = response.find(obj =>  {
+        return getStateAbbr(obj) === stateAbbr && getEnergyType(obj) === energyType
+    })
+    return match.data
+}
+
+function renderChart(){
+    renderCanvas();
+    toggleActiveBtnClass(); 
     var ctx = document.getElementById('chart-canvas').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: globalDataState.years,
+            labels: globalState.years,
             datasets: createDataSet(),
         },
         options: {
+            title: {
+                display: true, 
+                position: "top", 
+                text: globalState.yAxisLabel,
+                fontColor: "white", 
+                fontSize: 18 
+
+            },
             scales: {
                 yAxes: [{
                     ticks: {
                         fontSize: 16,
                         fontColor: 'white'
-                    }
+                    }, 
                 }],
                 xAxes: [{
                     ticks: {
@@ -400,36 +440,172 @@ function renderChart() {
     });
 }
 
-function renderCanvas(checkedEnergyTypes) {
+//meow
+function renderCanvas() {
     emptyMainContent();
     $('main').append(`<div id='chart-top'></div>`)
-    $('#chart-top').append(energyTypeContent(checkedEnergyTypes));
-    $('#chart-top').append(stateGdpBtn()); 
+    $('#chart-top').append(energyTypeContent());
     $('main').append(`<section id='chart'></section>`);
-    $("#chart").append(canvasContent());
-    closeChartEventListener(); 
-    stateGdpEventListener(); 
+    $("#chart").append(canvasContent()); 
+    $('#chart-top').append(btnContainer())
+    closeChartEventListener();
+    graphBtnEventListeners(); 
+}
+
+function btnContainer(){
+    return `<div>${stateGdpBtn()} ${co2Btn()}</div>`
 }
 
 function stateGdpBtn(){
-    return `<span><button id='btn-gdp'>GDP</button></span>`
+    return `<button class='graph-btn' id='btn-gdp' data-graph='gdpPerCO2emissions'>GDP per CO<sub>2</sub></button>`
 }
 
-function stateGdpEventListener(){
-    $('#btn-gdp').on('click', function(){
-        fetch(`https://apps.bea.gov/api/data/?UserID=${stateGdpApiKey}&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=${stateAbbr}&ResultFormat=json`)
-        .then(data => console.log(data))
+function co2Btn(){
+    return `<button class='graph-btn' id='btn-co2' data-graph='totalCO2emissions'>Cumulative CO<sub>2</sub></button>`  
+}
+
+function graphBtnEventListeners(){
+    $('.graph-btn').on('click', function(e){
+        e.preventDefault();
+        let activeGraphBtn = $(this).data("graph");
+        let btnId = $(this).attr("id")
+        checkFetchedDataTypes(activeGraphBtn, btnId)     
     })
 }
 
-function energyTypeContent(checkedEnergyTypes){
-    return  `<h2>Energy Types: ${checkedEnergyTypes.map(energy => capitalize(energy)).join(", ")}</h2>`
+function checkFetchedDataTypes(activeGraphBtn, btnId){
+    let graphTypeIndex = globalState.fetchedData.indexOf(activeGraphBtn)
+    if(graphTypeIndex === -1){
+        fetchGdpData();
+        toggleActiveBtnClass(btnId) 
+    } else if(graphTypeIndex >= 0){
+        toggleGraphType(activeGraphBtn)
+        toggleActiveBtnClass(btnId)
+    }
 }
 
-function canvasContent(checkedEnergyTypes){
+//meow
+function toggleGraphType(activeGraphBtn){
+    let totalCO2emissionsLabel = "CO2 Emissions (million metric tons)"
+    let gdpPerCo2emissionsLabel = "GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions"; 
+    let stateName= globalState.statesList[0];
+    let years = Object.keys(globalState.stateData[stateName][activeGraphBtn]); 
+    console.log(years)
+    updateGlobalStateGraph(activeGraphBtn);
+    updateGlobalStateYears(years);
+    if(activeGraphBtn === "gdpPerCO2emissions"){
+        updateGlobalStateYaxis(gdpPerCo2emissionsLabel)
+    } else if (activeGraphBtn === "totalCO2emissions"){
+        updateGlobalStateYaxis(totalCO2emissionsLabel)
+    }  
+    renderChart();   
+}
+
+function toggleActiveBtnClass(){
+
+}
+
+function fetchGdpData(){
+            let urls = globalState.statesList.map(state => {
+                let stateAbbr = stateListMaster[state].abbr; 
+                return `https://apps.bea.gov/api/data/?UserID=${stateGdpApiKey}&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=${stateAbbr}&ResultFormat=json`
+            })
+                Promise.all(urls.map(url => 
+                    fetch(url)
+                    .then(checkStatus)
+                    .then(parseJSON)
+                    .catch(error => console.log("error is", error))
+                    ))
+                    .then(updateGlobalStateFetchedData("gdpPerCO2emissions"))
+                    .then(gdpResults=> updateGlobalStateGdpData(gdpResults))
+                    .then(getGdpPerCO2emissions)
+                    .then(renderChart)           
+                    .catch(error => console.log("error is", error))
+}
+
+function checkStatus(response){
+    if(response.ok){
+        return Promise.resolve(response)
+    } else {
+        return Promise.reject(new Error(response.statusText))
+    }
+}
+
+function parseJSON(response){
+    return response.json()
+}
+
+function updateGlobalStateGdpData(gdpResults){
+    gdpResults.forEach(gdpObj => {
+        return getGdpData(gdpObj.BEAAPI.Results.Data)
+    })
+}
+
+function getGdpData(gdpDataArr){
+    let stateName = gdpDataArr[0].GeoName.replace(/\s+/g, '');
+    let gdpObj = {}
+    gdpDataArr.forEach(year => {
+        let gdpNum = year.DataValue.replace(/,/g, '')
+        gdpObj[year.TimePeriod] = parseInt(gdpNum)/1000
+    })
+    let stateObj = globalState.stateData[stateName]
+    stateObj.gdp = gdpObj;
+    updateGlobalStateYaxis(`GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions`)
+    return stateObj; 
+}
+
+
+
+function updateGlobalStateFetchedData(dataName){
+    globalState.fetchedData.push(dataName);   
+}
+
+function updateGlobalStateYaxis(yAxisLabel){
+    globalState.yAxisLabel = yAxisLabel
+}
+
+function getGdpPerCO2emissions(){
+    let stateObjKeys = Object.keys(globalState.stateData)
+    stateObjKeys.forEach(stateName => getGdpPerCO2(stateName))
+}
+
+function getGdpPerCO2(stateName){
+    let gdpObj = globalState.stateData[stateName].gdp
+    let years = Object.keys(gdpObj);
+    let gdpPerCO2emissions = {}; 
+    years.forEach(year => {
+        gdpPerCO2emissions[year] = getGdpEmissionsRatio(gdpObj[year], year, globalState.stateData[stateName])   
+    })
+    globalState.stateData[stateName].gdpPerCO2emissions = gdpPerCO2emissions; 
+    
+    updateGlobalStateYears(years)
+    updateGlobalStateGraph("gdpPerCO2emissions");
+}
+
+//start here
+//refactored Promise.all() for gdp data fetch
+//make sure graph can be updated to reflect gdp/CO2 emissions
+//then work on toggling between total CO2 emissions, and gdp/CO2
+
+function getGdpEmissionsRatio(gdp, year, stateObj){
+    let gdpToCO2emissionsRatio = gdp/stateObj.totalCO2emissions[year]; 
+    return gdpToCO2emissionsRatio.toFixed(3)
+    }
+
+function updateGlobalStateYears(years){
+    globalState.years = years
+}
+
+function updateGlobalStateGraph(graphName){
+    globalState.graph = graphName; 
+}
+
+function energyTypeContent(){
+    return  `<h2>Energy Types: ${globalState.energyTypes.map(energy => capitalize(energy)).join(", ")}</h2>`
+}
+
+function canvasContent(){
     return `<div id='chart-title'>
-                <div id='y-axis-label'>CO<span><sub>2</sub></span> Emissions (million metric tons)
-                </div>
                 <div>
                 <span id='close-chart' class='modal-close'>X</span>
                 </div>
@@ -447,20 +623,49 @@ function closeChartEventListener(){
 function createDataSet() {
     let lineColors = ["#4286f4", "#f44141", "#3ea84c", "#eaea19", "#ffa100"];
     let responseDataSet = [];
-    for (let i = 0; i < globalDataState.states.length; i++) {
-        console.log(globalDataState.AL)
-        let currentState = globalDataState.states[i]; 
+    let graphType = globalState.graph; 
+    for (let i = 0; i < globalState.statesList.length; i++) {
+        let currentState = globalState.statesList[i];   
         responseDataSet.push({
-            label: currentState,
+            label: stateListMaster[currentState].name,
             fill: false,
             borderColor: lineColors[i],
-            data: Object.values(globalDataState[currentState].co2Emissions),
+            data: createData(globalState.stateData[currentState][graphType]),
             pointBackgroundColor: 'white',
         })
     }
     return responseDataSet;
 }
 
+function createData(dataObj){
+    return Object.keys(dataObj).map(year => {
+        return dataObj[year]
+    })
+}
 
+function updateGlobalStateTotalCO2(){
+    Object.keys(globalState.stateData).forEach(state => {
+        sumCO2Emissions(globalState.stateData[state])
+    })
+}
+
+function sumCO2Emissions(state){
+    let energyTypes= Object.keys(state);
+    let firstEnergyType = state[energyTypes[0]]
+
+    let totalCO2emissions = {}; 
+    Object.keys(firstEnergyType).forEach(year => {
+        return totalCO2emissions[year] = sumEnergyCO2(state, energyTypes, year)
+    })
+    state.totalCO2emissions = totalCO2emissions; 
+}
+ 
+function sumEnergyCO2(state, energyTypes, year){
+    let sum = 0; 
+    energyTypes.forEach(energy => {
+        sum += state[energy][year]
+    })
+    return sum
+}
 
 $(launchApp)
