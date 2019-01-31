@@ -32,18 +32,8 @@ header h1, h2{
     background-color: black; 
 } */
 
-.inactive-button{
-    background-color: black;
-    border: none;
-    color: #afafaf; 
-}
 
-.inactive-button:hover{
-    color: white;
-    box-shadow: #ffff99 1px 1px 15px;
-}
-
-.light-button{
+button{
     margin: 0 auto;
     display: block;
     font-size: 24px;
@@ -53,10 +43,21 @@ header h1, h2{
     transition: all .1s ease-in-out; 
 }
 
-.light-button:hover{
+button:hover{
     cursor: pointer;
     box-shadow: #ffffb7 1px 1px 25px;
     transform: scale(1.05);
+}
+
+.inactive-button{
+    background-color: black;
+    border: none;
+    color: #afafaf; 
+}
+
+.inactive-button:hover{
+    color: white;
+    box-shadow: #ffff99 1px 1px 15px;
 }
 
 #add-state-btn{
@@ -75,8 +76,10 @@ header h1, h2{
 }
 
 #chart{
-    border: 1px solid white;
     padding: 5px;
+    width: 70vw;
+    margin: 0 auto;
+    border: 1px solid white;
 }
 
 @media screen and (min-width: 700px) {
@@ -152,7 +155,7 @@ form select:hover, input:hover{
     position: absolute;
     top: 75;
     width: 50%;
-    height: 50%;
+    height: 300px;
     margin-left: 25%;
     text-align: center;
     border-radius: 5px;
@@ -173,20 +176,23 @@ form select:hover, input:hover{
     box-shadow: #ffff99 1px 1px 15px;
 }
 
+.modal>h1 {
+    margin-top: 15%;
+    font-size: 28px;     
+}
+
 .opaque{
     opacity: 0.5
 }
 
-#chart-top{
-    display: flex; 
-    justify-content: space-evenly;   
+.graph-btn-container{
+    text-align: center;
 }
 
 .graph-btn{
     display: inline-block; 
     margin-right: 5px; 
 }
-
 
 #chart-title{
     text-align: center

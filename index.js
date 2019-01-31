@@ -1,5 +1,7 @@
 'use strict';
 
+//highlight active graph
+
 const stateListMaster = {
     Alabama: { name: "Alabama", abbr: "AL" },
     Alaska: {name: "Alaska", abbr: "AK" },
@@ -53,45 +55,13 @@ const stateListMaster = {
     Wyoming: {name: "Wyoming", abbr: "WY"}
 }
 
-//if user picks multiple energy types, then it combines all those energy types
-//Include a more clear phrasing in the graph that specifies this. 
-//"Combined Total of CO2 Emissions for...[insert energy types here]"
-//
-
-//if you "check off" both states after you've clicked for the graph
-//you get a -1 to 1 
-
-//once you're in GDP view you should be able to click to go back to CO2 emissions 
-//graph 
-
-//For energy types, if you click total, it should uncheck all of the others 
-//you can't click total, AND other energy types 
-//or just eliminate the "total" option 
-
-//if user has selected same states, and then clicks submit, issue a warning that they
-//cannot choose the same state multiple times
-
-
-// final polish make sure syntax and indentation is the same
-// look at functions and variables, limit global variables
-// name clearly indicates what function does, function does a single thing
-//          what about functions that need multiple functions?
-// every function should take an argument (pure functions)
-// the function should require a known input, otherwise it's likely 
-// to create bugs
-// each function should return a value, which makes it clear
-// where the function ends, even if you're just returning a function
-
-//try to make a function not span more than 5-10 lines of code
-
-//redo event listeners, have onClick, then name the function
-//that should be performed
-
 const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t';
 const stateGdpApiKey = 'A1E0048C-FE51-40B6-B0BE-F8D7D58C1549';
 
-let globalState = {}
+const CO2EMISSIONSPERGDPLABEL = "GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions";
+const TOTALCO2EMISSIONSLABEL= "Total CO2 Emissions";
 
+let globalState = {}
 
 //Utility Functions
 function capitalize(elem) {
@@ -111,10 +81,7 @@ function lowerCase(word){
     return word.charAt(0).toLowerCase() + word.slice(1); 
 }
 
-//Launch Application
-function launchApp() {
-    renderLandingPage();
-}
+$(renderLandingPage)
 
 function renderLandingPage() {
     let landingPage =
@@ -123,22 +90,15 @@ function renderLandingPage() {
         <button class='light-button'>START</button>
     </section>`;
     $('main').append(landingPage)
-    startEventListener();
-}
-
-function startEventListener() {
-    $(".landing button").on("click", function () {
-        $(".landing").addClass("hidden");
-        emptyMainContent();
-        renderCompareStatesForm();
-    })
+    createEventListener($('.landing button'), renderForm, false)
 }
 
 function emptyMainContent() {
     $('main').empty();
 }
 
-function renderCompareStatesForm() {
+function renderForm() {
+    emptyMainContent(); 
     let compareStateForm =
     `<section id='page-compare'>
     <form>
@@ -157,18 +117,33 @@ function renderCompareStatesForm() {
       <legend>Choose CO<sub>2</sub> Emissions by Energy Type</legend>
       ${renderEnergyInputs()}
       </fieldset>
-      <button id='submit-btn' type='submit' class='light-button'>Submit</button>
+      <button id='submit-btn' type='submit' class='light-button'>CO<sub>2</sub> Emissions</button>
     </form>`
     $('main').append(compareStateForm); 
-    backgroundGradient(); 
-    addStateEventListener(); 
-    totalEnergyEventListener(); 
-    submitEventListener();
-    instantiateGlobalStateFetchedData(); 
+    $('body').addClass('background-gradient')
+    createEventListener($('#add-state-btn'), addState, true); 
+    createEventListener($('.energy-input'), toggleTotalEnergyCheck, false); 
+    createEventListener($('#submit-btn'), verifyStateSelection, true);
 }
 
-function instantiateGlobalStateFetchedData(){
-    globalState.fetchedData = []; 
+function newUpdateGlobalState(state, property, updatedValue){
+    state[property] = updatedValue;
+}
+
+function createEventListener(element, handleAction, preventDefault) {
+    element.on("click", function (e) {
+        preventDefault === true ? e.preventDefault() : null; 
+        handleAction($(this)); 
+    })
+}
+
+function toggleTotalEnergyCheck(self){
+        if(self.attr("id") !== "total-energy"){
+            $("#total-energy").prop("checked", false)
+      } else if(self.attr("id") === "total-energy"){
+          $(".energy-input").prop("checked", false)
+          $("#total-energy").prop("checked", true)
+      }
 }
 
 function getStateOptions() {
@@ -179,7 +154,6 @@ function getStateOptions() {
 }
 
 function renderEnergyInputs() {
-    globalState.energyTypes = []; 
     let energyTypes = ["commercial", "electric", "residential", "industrial", "transportation", "total"];
     return energyTypes.map(energy => {
         return energyInput(energy); 
@@ -198,52 +172,20 @@ function backgroundGradient(){
     $('body').addClass('background-gradient'); 
 }
 
-function updateGlobalStateTotalEnergy(){
-    $('.energy-input').each(function (){
-        if($(this).prop("checked") === true){
-            return $(this).prop("checked", false)
-        }      
-    })
-    $('#total-energy').prop("checked", true)
-    globalState.energyTypes = ["total"]
-}
-
-function addStateEventListener() {
-    $("#add-state-btn").on("click", function (e) {
-        e.preventDefault();
-        if ($('.state').length < 5) {
-            addState(); 
-        } else {
-            let modalMessage = "Only 5 states allowed at a time";
-            return renderModal(modalMessage)
-        }
-    })
-}
-
 function addState(){
-    let newStateEntry = $("#first-state").clone(true).removeAttr("id");
-    $("#state-container").append(newStateEntry)
-    let newStateName = $('.state').last().find('.state-val').val(); 
-    $('.state').last().append(`<button class='remove-state-btn light-button'>-</button>`)
-    removeStateEventListener(); 
+    if($('.state').length <= 4){
+        let newStateEntry = $("#first-state").clone(true).removeAttr("id");
+        $("#state-container").append(newStateEntry)
+        $('.state').last().append(`<button class='remove-state-btn light-button'>-</button>`)
+        let lastState = $('.state').last().find('.remove-state-btn')
+        createEventListener(lastState, removeState, true); 
+    } else {
+        renderModal("You can only select 5 states at a time.")
+    }
 }
 
-function removeStateEventListener(){
-    $('.state').last().find('.remove-state-btn').on('click', function(e){
-        e.preventDefault;
-        let self = $(this).closest('.state').remove(); 
-    }) 
-}
-
-function totalEnergyEventListener(){
-          $(".energy-input").on("click", function(){
-              if($(this).attr("id") !== "total-energy"){
-                  $("#total-energy").prop("checked", false)
-            } else if($(this).attr("id") === "total-energy"){
-                $(".energy-input").prop("checked", false)
-                $("#total-energy").prop("checked", true)
-            }
-          })
+function removeState(self){
+        self.closest('.state').remove(); 
 }
 
 function renderModal(message) {
@@ -255,158 +197,152 @@ function renderModal(message) {
     </section>
     `;
     $('body').append(modal);
-    modalCloseListener();
+    createEventListener($('.modal-close'), closeModal, true)
 }
 
 function toggleOpaque(){
     $('main').toggleClass('opaque')
 }
 
-function modalCloseListener() {
-    $('.modal-close').on('click', function (e) {
-        e.preventDefault();
-        toggleOpaque(); 
-        closeModal()
-    })
-}
-
 function closeModal() {
+    toggleOpaque(); 
     $('.modal').remove();
 }
 
-function submitEventListener() {
-    $("#submit-btn").on("click", function (e) {
-        e.preventDefault(); 
-        verifyStateSelection();
-    })
-}
 
 function verifyStateSelection(){
-    updateGlobalStateStates(); 
-    let statesList = globalState.statesList; 
-    let deDupeStatesList = []; 
-    statesList.forEach(state => {
-        if(deDupeStatesList.indexOf(state) === -1){
-            deDupeStatesList.push(state)
+    let states = $(".state-val").map(function (){
+        return $(this).val(); 
+    }).get(); 
+    let deDupeStates = []; 
+    states.forEach(state => {
+        if(deDupeStates.indexOf(state) === -1){
+            deDupeStates.push(state)
         } 
     })
-    if(deDupeStatesList.length === statesList.length){
-        verifyEnergyTypeSelection();
+    if(deDupeStates.length === states.length){
+        verifyEnergyTypeSelection(states);
     }
     else {
         renderModal("You cannot choose the same state multiple times")
     }
 }
 
-function updateGlobalStateStates(){
-    globalState.statesList = []; 
-    globalState.statesList =  $(".state-val").map(function () {
-        return $(this).val();
-    }).get();
-}
-
-function verifyEnergyTypeSelection(){
-    updateGlobalStateEnergyType();
-    if(globalState.energyTypes.length === 0){
+function verifyEnergyTypeSelection(states, ){
+    if($('.energy-input:checkbox:checked').length === 0){
         return renderModal("You must select at least one energy type")
     } else {
-        getFormData(globalState.statesList, globalState.energyTypes); 
-        updateGlobalStateFetchedData("totalCO2emissions") 
+        submitFormUpdateState(states, getEnergyArr())
+        getStateFullName(states); 
+        fetchTotalCO2data(); 
     }
 }
 
-function updateGlobalStateEnergyType(){
-    globalState.energyTypes = []; 
-    $.each($("input[name='energy']:checked"), function () {
-        let energyType = $(this).data("energy");
-        globalState.energyTypes.push(energyType);
-    });
-}
-
-function getFormData(checkedStates, checkedEnergyTypes) {
-    Promise.all(getPromises(checkedStates, checkedEnergyTypes))
-    .then(formatResponse)
-    .then(response => updateGlobalState(response, checkedStates, checkedEnergyTypes))
-    .then(updateGlobalStateTotalCO2)
-    .then(renderChart)
-    .catch(error => console.log("error is", error))
-}
-
-function getPromises(checkedStates, checkedEnergyTypes){
-    const urlList = []; 
-    checkedStates.forEach(state => {
+function submitFormUpdateState(states, energy){
+    states.forEach(state => {
         let stateAbbr = stateListMaster[state].abbr;
-        checkedEnergyTypes.map(energyType => {
-            return urlList.push(`https://developer.nrel.gov/api/cleap/v1/state_co2_emissions?state_abbr=${stateAbbr}&type=${energyType}&api_key=${apiKey}`)
+        globalState[stateAbbr] = getCO2emissionsByEnergyType(energy)
+    })
+}
+
+function getCO2emissionsByEnergyType(energy){
+    let energyCO2emissionsObj = {};  
+    energy.forEach(eType => {
+        let energyProp = {[eType]: {}}; 
+        energyCO2emissionsObj.energyType = {...energyCO2emissionsObj.energyType, ...energyProp}; 
+    })
+    return energyCO2emissionsObj;
+}
+
+function getStateFullName(states){
+    states.forEach(state => {
+        let stateAbbr = stateListMaster[state].abbr;  
+        globalState[stateAbbr].fullName = state;     
+    })
+}
+
+function getEnergyArr(){
+    let energyArr = [];
+    $.each($("input[name='energy']:checked"), function(){
+        let energyType = $(this).data("energy");
+        energyArr.push(energyType);
+    });
+    return energyArr; 
+}
+//here here
+function fetchTotalCO2data() {
+    let stateAbbrs = Object.keys(globalState); 
+    let energy = Object.keys(globalState[stateAbbrs[0]].energyType);
+    let urls = getUrls(stateAbbrs, energy); 
+    Promise.all(urls.map(url => 
+        fetch(url)
+        .then(checkStatus)
+        .then(parseJSON)
+        .then(formatFetchedData)
+        ))
+        .then(getStateCO2byEnergyType)
+        .then(updateGlobalStateCO2emissions)
+        .then(()=> renderChart(TOTALCO2EMISSIONSLABEL))
+    }
+
+function getUrls(stateAbbrs, energy){
+    const urlList = []; 
+    stateAbbrs.forEach(state => {
+        energy.map(energyType => {
+            return urlList.push(`https://developer.nrel.gov/api/cleap/v1/state_co2_emissions?state_abbr=${state}&type=${energyType}&api_key=${apiKey}`)
         })
     })  
-    return fetchUrls(urlList); 
+    return urlList;
 } 
 
+function formatFetchedData(responseObj){ 
+    let response = responseObj.result[0]
+    let stateAbbr = getStateAbbr(response)
+    let energyType = getEnergyType(response);
+    return  {[`${stateAbbr}-${energyType}`]: response.data};
+}
 
-function fetchUrls(urlArray){
-    return urlArray.map(url => {
-        return fetch(url)
-        .then(response => {
-            if(response.ok) return Promise.resolve(response.json())
-            else return Promise.reject(new Error(response.statusText))
-        })
-        .catch(error => console.log("error is", error)) 
-    });
-}  
+function getStateCO2byEnergyType(responseArr){
+    let stateCO2byEnergyType = {}; 
+    responseArr.forEach(response => {
+        let key = Object.keys(response);
+        let state = key[0].split('-')[0]; 
+        let energy = key[0].split('-')[1];
+        stateCO2byEnergyType[state] = {...stateCO2byEnergyType[state], [energy]: response[key[0]]}; 
+    })
+    return stateCO2byEnergyType
+}
 
-function formatResponse(response){
-    return response.map(obj => {
-        return obj.result[0]
+function updateGlobalStateCO2emissions(response){
+    let states = Object.keys(response); 
+    states.forEach(state => {
+        globalState[state].energyType= response[state]
     })
 }
 
-function updateGlobalState(response, checkedStates, checkedEnergyTypes){
-    updateGlobalStateGraph("totalCO2emissions")
-    globalState.years = Object.keys(response[0].data);
-    globalState.stateData = getStateCO2EmissionsArr(response, checkedStates, checkedEnergyTypes); 
-    globalState.yAxisLabel = "CO2 Emissions (million metric tons)";
+
+function getCO2emissions(response, key, energy){
+    return {[energy]: response[key[0]]}
 }
 
-function getStateCO2EmissionsArr(response, checkedStates, checkedEnergyTypes) {  
-    let CO2EmissionsByState = {};   
-    checkedStates.forEach(state => {
-        return CO2EmissionsByState[state] = getCO2EmissionsByEnergyObj(response, state, checkedEnergyTypes); 
-    })
-    return CO2EmissionsByState; 
-}
-
-function getCO2EmissionsByEnergyObj(response, state, checkedEnergyTypes){
-    let energyEmissionsObj = {}; 
-    checkedEnergyTypes.forEach(energyType => {
-        energyEmissionsObj[energyType] = getEnergyCo2Emissions(response, state, energyType)
-    })
-    return energyEmissionsObj
-}
-
-function getEnergyCo2Emissions(response, state, energyType){
-    let stateAbbr = stateListMaster[state].abbr
-    let match = response.find(obj =>  {
-        return getStateAbbr(obj) === stateAbbr && getEnergyType(obj) === energyType
-    })
-    return match.data
-}
-
-function renderChart(){
-    renderCanvas();
-    toggleActiveBtnClass(); 
+function renderChart(yAxisLabel){ 
+    let stateAbbrs = Object.keys(globalState);
+    let states = stateAbbrs.map(stateAbbr => globalState[stateAbbr].fullName);
+    let energy = Object.keys(globalState[stateAbbrs[0]].energyType); 
+    let years = getYears(yAxisLabel, stateAbbrs, energy); 
+    renderCanvas(energy);    
     var ctx = document.getElementById('chart-canvas').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: globalState.years,
-            datasets: createDataSet(),
+            labels: years,
+            datasets: createDataSet(yAxisLabel, states, years),
         },
         options: {
             title: {
                 display: true, 
                 position: "top", 
-                text: globalState.yAxisLabel,
+                text: yAxisLabel,
                 fontColor: "white", 
                 fontSize: 18 
 
@@ -438,89 +374,67 @@ function renderChart(){
             }
         }
     });
+    createChartBtns(yAxisLabel)
 }
 
-//meow
-function renderCanvas() {
-    emptyMainContent();
-    $('main').append(`<div id='chart-top'></div>`)
-    $('#chart-top').append(energyTypeContent());
-    $('main').append(`<section id='chart'></section>`);
-    $("#chart").append(canvasContent()); 
-    $('#chart-top').append(btnContainer())
-    closeChartEventListener();
-    graphBtnEventListeners(); 
-}
-
-function btnContainer(){
-    return `<div>${stateGdpBtn()} ${co2Btn()}</div>`
-}
-
-function stateGdpBtn(){
-    return `<button class='graph-btn' id='btn-gdp' data-graph='gdpPerCO2emissions'>GDP per CO<sub>2</sub></button>`
-}
-
-function co2Btn(){
-    return `<button class='graph-btn' id='btn-co2' data-graph='totalCO2emissions'>Cumulative CO<sub>2</sub></button>`  
-}
-
-function graphBtnEventListeners(){
-    $('.graph-btn').on('click', function(e){
-        e.preventDefault();
-        let activeGraphBtn = $(this).data("graph");
-        let btnId = $(this).attr("id")
-        checkFetchedDataTypes(activeGraphBtn, btnId)     
-    })
-}
-
-function checkFetchedDataTypes(activeGraphBtn, btnId){
-    let graphTypeIndex = globalState.fetchedData.indexOf(activeGraphBtn)
-    if(graphTypeIndex === -1){
-        fetchGdpData();
-        toggleActiveBtnClass(btnId) 
-    } else if(graphTypeIndex >= 0){
-        toggleGraphType(activeGraphBtn)
-        toggleActiveBtnClass(btnId)
+function getYears(yAxisLabel, stateAbbrs, energy){
+    if(yAxisLabel === TOTALCO2EMISSIONSLABEL){
+        return Object.keys(globalState[stateAbbrs[0]].energyType[energy[0]]);
+    } else if(yAxisLabel === CO2EMISSIONSPERGDPLABEL){
+        return Object.keys(globalState[stateAbbrs[0]].gdp)
     }
 }
 
-//meow
-function toggleGraphType(activeGraphBtn){
-    let totalCO2emissionsLabel = "CO2 Emissions (million metric tons)"
-    let gdpPerCo2emissionsLabel = "GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions"; 
-    let stateName= globalState.statesList[0];
-    let years = Object.keys(globalState.stateData[stateName][activeGraphBtn]); 
-    console.log(years)
-    updateGlobalStateGraph(activeGraphBtn);
-    updateGlobalStateYears(years);
-    if(activeGraphBtn === "gdpPerCO2emissions"){
-        updateGlobalStateYaxis(gdpPerCo2emissionsLabel)
-    } else if (activeGraphBtn === "totalCO2emissions"){
-        updateGlobalStateYaxis(totalCO2emissionsLabel)
-    }  
-    renderChart();   
+function renderCanvas(energy) {
+    emptyMainContent();
+    $('main').append(`<div id='chart-top'></div>`)
+    $('#chart-top').append(energyTypeContent(energy));
+    $('main').append(`<section id='chart'></section>`);
+    $("#chart").append(canvasContent()); 
+    createEventListener($("#close-chart"), renderForm, false);
 }
 
-function toggleActiveBtnClass(){
+function createChartBtns(yAxisLabel){
+    $('#chart').append(btnContainer())
+    toggleActiveBtnClass(yAxisLabel)
+    createEventListener($('#btn-gdp'), fetchGdpData, false); 
+    createEventListener($('#btn-co2'), fetchTotalCO2data, false); 
+}       
 
+function btnContainer(){
+    return `<div class='graph-btn-container'>${totaCO2Btn()} ${gdpPerCO2btn()}</div>`
+}
+
+function gdpPerCO2btn(){
+    return `<button class='graph-btn' id='btn-gdp' data-graph='gdpPerCO2emissions'>GDP per CO<sub>2</sub></button>`
+}
+
+function totaCO2Btn(){
+    return `<button class='graph-btn' id='btn-co2' data-graph='totalCO2emissions'>Total CO<sub>2</sub></button>`  
+}
+
+function toggleActiveBtnClass(yAxisLabel){
+    if(yAxisLabel === TOTALCO2EMISSIONSLABEL ){
+        $('#btn-gdp').addClass('inactive-button')
+    } else if (yAxisLabel === CO2EMISSIONSPERGDPLABEL){
+        $('#btn-co2').addClass('inactive-button')
+    }
 }
 
 function fetchGdpData(){
-            let urls = globalState.statesList.map(state => {
-                let stateAbbr = stateListMaster[state].abbr; 
-                return `https://apps.bea.gov/api/data/?UserID=${stateGdpApiKey}&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=${stateAbbr}&ResultFormat=json`
-            })
-                Promise.all(urls.map(url => 
-                    fetch(url)
-                    .then(checkStatus)
-                    .then(parseJSON)
-                    .catch(error => console.log("error is", error))
-                    ))
-                    .then(updateGlobalStateFetchedData("gdpPerCO2emissions"))
-                    .then(gdpResults=> updateGlobalStateGdpData(gdpResults))
-                    .then(getGdpPerCO2emissions)
-                    .then(renderChart)           
-                    .catch(error => console.log("error is", error))
+    let urls = Object.keys(globalState).map(stateAbbr => {
+        return `https://apps.bea.gov/api/data/?UserID=${stateGdpApiKey}&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=${stateAbbr}&ResultFormat=json`
+    })
+    Promise.all(urls.map(url => 
+        fetch(url)
+        .then(checkStatus)
+        .then(parseJSON)
+        .catch(error => console.log("error is", error))
+        ))
+        .then(gdpResults=> updateGlobalStateGdpData(gdpResults))
+        .then(getGdpPerCO2emissions)
+        .then(() => renderChart(CO2EMISSIONSPERGDPLABEL))  
+        .catch(error => console.log("error is", error))
 }
 
 function checkStatus(response){
@@ -536,28 +450,21 @@ function parseJSON(response){
 }
 
 function updateGlobalStateGdpData(gdpResults){
-    gdpResults.forEach(gdpObj => {
+    return gdpResults.map(gdpObj => {
         return getGdpData(gdpObj.BEAAPI.Results.Data)
     })
 }
 
 function getGdpData(gdpDataArr){
     let stateName = gdpDataArr[0].GeoName.replace(/\s+/g, '');
+    let stateAbbr = stateListMaster[stateName].abbr; 
     let gdpObj = {}
     gdpDataArr.forEach(year => {
         let gdpNum = year.DataValue.replace(/,/g, '')
         gdpObj[year.TimePeriod] = parseInt(gdpNum)/1000
     })
-    let stateObj = globalState.stateData[stateName]
-    stateObj.gdp = gdpObj;
-    updateGlobalStateYaxis(`GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions`)
-    return stateObj; 
-}
-
-
-
-function updateGlobalStateFetchedData(dataName){
-    globalState.fetchedData.push(dataName);   
+    globalState[stateAbbr].gdp = gdpObj;
+    return globalState; 
 }
 
 function updateGlobalStateYaxis(yAxisLabel){
@@ -565,43 +472,29 @@ function updateGlobalStateYaxis(yAxisLabel){
 }
 
 function getGdpPerCO2emissions(){
-    let stateObjKeys = Object.keys(globalState.stateData)
-    stateObjKeys.forEach(stateName => getGdpPerCO2(stateName))
+    let stateObjKeys = Object.keys(globalState)
+    stateObjKeys.forEach(stateName => getStateGdpPerCO2(stateName))
 }
 
-function getGdpPerCO2(stateName){
-    let gdpObj = globalState.stateData[stateName].gdp
+function getStateGdpPerCO2(stateName){
+    let gdpObj = globalState[stateName].gdp
     let years = Object.keys(gdpObj);
+    let totalCO2emissionsObj = sumCO2emissions(stateName, years); 
     let gdpPerCO2emissions = {}; 
     years.forEach(year => {
-        gdpPerCO2emissions[year] = getGdpEmissionsRatio(gdpObj[year], year, globalState.stateData[stateName])   
+        gdpPerCO2emissions[year] = getGdpEmissionsRatio(gdpObj[year], year, totalCO2emissionsObj)   
     })
-    globalState.stateData[stateName].gdpPerCO2emissions = gdpPerCO2emissions; 
-    
-    updateGlobalStateYears(years)
-    updateGlobalStateGraph("gdpPerCO2emissions");
+    globalState[stateName].gdpPerCO2emissions = gdpPerCO2emissions; 
+    console.log(globalState)
 }
 
-//start here
-//refactored Promise.all() for gdp data fetch
-//make sure graph can be updated to reflect gdp/CO2 emissions
-//then work on toggling between total CO2 emissions, and gdp/CO2
-
-function getGdpEmissionsRatio(gdp, year, stateObj){
-    let gdpToCO2emissionsRatio = gdp/stateObj.totalCO2emissions[year]; 
+function getGdpEmissionsRatio(gdp, year, totalCO2emissionsObj){
+    let gdpToCO2emissionsRatio = gdp/totalCO2emissionsObj[year];
     return gdpToCO2emissionsRatio.toFixed(3)
-    }
-
-function updateGlobalStateYears(years){
-    globalState.years = years
 }
 
-function updateGlobalStateGraph(graphName){
-    globalState.graph = graphName; 
-}
-
-function energyTypeContent(){
-    return  `<h2>Energy Types: ${globalState.energyTypes.map(energy => capitalize(energy)).join(", ")}</h2>`
+function energyTypeContent(energy){
+    return  `<h2>Energy Types: ${energy.map(energy => capitalize(energy)).join(", ")}</h2>`
 }
 
 function canvasContent(){
@@ -613,59 +506,46 @@ function canvasContent(){
             <canvas id='chart-canvas'></canvas>`
 }
 
-function closeChartEventListener(){
-    $("#close-chart").on("click", function(){
-        emptyMainContent(); 
-        renderCompareStatesForm(); 
-    })
-}
-
-function createDataSet() {
+function createDataSet(yAxisLabel, states, years) {
     let lineColors = ["#4286f4", "#f44141", "#3ea84c", "#eaea19", "#ffa100"];
-    let responseDataSet = [];
-    let graphType = globalState.graph; 
-    for (let i = 0; i < globalState.statesList.length; i++) {
-        let currentState = globalState.statesList[i];   
+    let responseDataSet = []; 
+    for (let i = 0; i < states.length; i++) {
+        let state = states[i]
+        let graphData = getGraphData(yAxisLabel, state, years); 
         responseDataSet.push({
-            label: stateListMaster[currentState].name,
+            label: stateListMaster[states[i]].name,
             fill: false,
             borderColor: lineColors[i],
-            data: createData(globalState.stateData[currentState][graphType]),
+            data: graphData,
             pointBackgroundColor: 'white',
         })
     }
     return responseDataSet;
 }
 
-function createData(dataObj){
-    return Object.keys(dataObj).map(year => {
-        return dataObj[year]
-    })
+//meow meow
+function getGraphData(yAxisLabel, state, years){
+    let stateAbbr = stateListMaster[state].abbr; 
+    if(yAxisLabel === TOTALCO2EMISSIONSLABEL){
+        let totalCO2emissionsObj = sumCO2emissions(stateListMaster[state].abbr, years);
+        return Object.keys(totalCO2emissionsObj).map(year => totalCO2emissionsObj[year]); 
+    } else if(yAxisLabel === CO2EMISSIONSPERGDPLABEL){
+        let gdpCO2ratio = globalState[stateAbbr].gdpPerCO2emissions; 
+        return Object.keys(gdpCO2ratio).map(year => gdpCO2ratio[year])
+    }
 }
 
-function updateGlobalStateTotalCO2(){
-    Object.keys(globalState.stateData).forEach(state => {
-        sumCO2Emissions(globalState.stateData[state])
+function sumCO2emissions(stateAbbr, years){
+    let totalCO2emissionsObj = {}; 
+    let stateEnergyObj = globalState[stateAbbr].energyType; 
+    let energy = Object.keys(stateEnergyObj); 
+    years.map(year => {
+        let sum = 0; 
+        energy.forEach(eType => { 
+            sum += stateEnergyObj[eType][year]; 
+        })
+        return totalCO2emissionsObj[year] = sum
     })
+    return totalCO2emissionsObj; 
 }
 
-function sumCO2Emissions(state){
-    let energyTypes= Object.keys(state);
-    let firstEnergyType = state[energyTypes[0]]
-
-    let totalCO2emissions = {}; 
-    Object.keys(firstEnergyType).forEach(year => {
-        return totalCO2emissions[year] = sumEnergyCO2(state, energyTypes, year)
-    })
-    state.totalCO2emissions = totalCO2emissions; 
-}
- 
-function sumEnergyCO2(state, energyTypes, year){
-    let sum = 0; 
-    energyTypes.forEach(energy => {
-        sum += state[energy][year]
-    })
-    return sum
-}
-
-$(launchApp)
