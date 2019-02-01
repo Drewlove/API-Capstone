@@ -1,6 +1,6 @@
 USA CO2 and GDP Data
 
-LINK: https://drewlove.github.io/API-Capstone/
+LINK: https://drewlove.github.io/CO2-GDP-App/
 
 Screenshot: 
 
