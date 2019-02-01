@@ -485,7 +485,6 @@ function getStateGdpPerCO2(stateName){
         gdpPerCO2emissions[year] = getGdpEmissionsRatio(gdpObj[year], year, totalCO2emissionsObj)   
     })
     globalState[stateName].gdpPerCO2emissions = gdpPerCO2emissions; 
-    console.log(globalState)
 }
 
 function getGdpEmissionsRatio(gdp, year, totalCO2emissionsObj){
