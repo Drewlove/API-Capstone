@@ -23,16 +23,17 @@ header h1, h2{
     text-align: center;
     color: white;
     font-family: 'Exo 2', sans-serif;
+    font-size: 42px; 
 }
 
 button{
     margin: 0 auto;
     display: block;
-    font-size: 24px;
-    border-radius: 5px;
+    font-size: 38px;
+    border-radius: 8px;
     background-color: white;
-    box-shadow:#ffff99 1px 1px 15px;
-    transition: all .1s ease-in-out; 
+    box-shadow: #ffff99 1px 1px 15px;
+    transition: all .1s ease-in-out;
 }
 
 button:hover{
@@ -102,6 +103,8 @@ button:hover{
     margin-bottom: 25px;
     display: block;
     margin: 25px auto;
+    font-size:32px; 
+    
 }
 
 form{
@@ -129,7 +132,7 @@ form select:hover, input:hover{
 }
 
 .state-val{
-    font-size: 16px;
+    font-size: 28px;
     color: black;
     border: 1px solid white;
 }
@@ -139,6 +142,10 @@ form select:hover, input:hover{
     font-size: 20px;
     margin-left: 10px;
 }
+
+input[type=checkbox] {
+    transform: scale(1.5);
+  }
 
 .modal{
     border: 5px solid white;
