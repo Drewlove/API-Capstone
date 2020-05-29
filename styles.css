@@ -35,12 +35,6 @@ button{
     transition: all .1s ease-in-out;
 }
 
-button:hover{
-    cursor: pointer;
-    box-shadow: #ffffb7 1px 1px 25px;
-    transform: scale(1.05);
-}
-
 .inactive-button{
     background-color: black;
     border: none;
@@ -201,9 +195,15 @@ input[type=checkbox] {
     float: left;
 }
 
-@media (min-width: 700px) {
+@media (min-width: 600px) {
     fieldset {
         width: 500px; 
+    }
+
+    button:hover{
+        cursor: pointer;
+        box-shadow: #ffffb7 1px 1px 25px;
+        transform: scale(1.05);
     }
 }
 
