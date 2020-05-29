@@ -22,7 +22,7 @@ header h1, h2{
     text-align: center;
     color: white;
     font-family: 'Exo 2', sans-serif;
-    font-size: 3em;
+    font-size: 32px;
 }
 
 button{
@@ -67,8 +67,7 @@ button:hover{
 }
 
 .landing button{
-    width: 50vw;
-    height: 10vh;
+    width: 200px;
 }
 
 #chart{
