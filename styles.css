@@ -197,13 +197,13 @@ input[type=checkbox] {
     float: left;
 }
 
-@media screen and (min-width: 700px) {
+@media (min-width: 700px) {
     fieldset {
         width: 500px; 
     }
 }
 
-@media screen and (min-width: 600px){
+@media (min-width: 600px){
     .landing img{
         width: 650px;
     }
