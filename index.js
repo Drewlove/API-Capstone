@@ -269,7 +269,7 @@ function getEnergyArr(){
     });
     return energyArr; 
 }
-//here here
+
 function fetchTotalCO2data() {
     let stateAbbrs = Object.keys(globalState); 
     let energy = Object.keys(globalState[stateAbbrs[0]].energyType);
