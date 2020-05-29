@@ -30,6 +30,10 @@ button{
     background-color: white;
 }
 
+button:focus{
+    outline: none; 
+}
+
 /* .inactive-button{
     background-color: black;
     border: none;
@@ -127,6 +131,12 @@ form select:hover, input:hover{
     font-size: 21px;
     color: black;
     border: 1px solid white;
+}
+
+#submit-btn{
+    margin: 0 auto;
+    display: block;
+    font-size: 21px;
 }
 
 .remove-state-btn{
