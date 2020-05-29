@@ -61,7 +61,7 @@ button:hover{
 }
 
 .landing img{
-    width: 1000px;
+    max-width: 650px;
     margin: 0 auto;
     display: block;
 }
@@ -200,11 +200,5 @@ input[type=checkbox] {
 @media (min-width: 700px) {
     fieldset {
         width: 500px; 
-    }
-}
-
-@media (min-width: 600px){
-    .landing img{
-        width: 650px;
     }
 }
