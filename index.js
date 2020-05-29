@@ -63,7 +63,7 @@ const TOTALCO2EMISSIONSLABEL= "Total CO2 Emissions";
 
 let globalState = {}
 
-//Utility Functions
+//Utilities
 function capitalize(elem) {
     return elem.charAt(0).toUpperCase() + elem.slice(1)
 }
