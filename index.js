@@ -86,7 +86,7 @@ $(renderLandingPage)
 function renderLandingPage() {
     let landingPage =
         `<section class='landing'>
-        <img alt='USA lights at night' src='https://cdn1.vectorstock.com/i/1000x1000/98/00/light-bulb-icon-on-black-background-black-flat-vector-25959800.jpg'>
+        <img alt='USA lights at night' src='rb.gy/ssymcb'>
         <button class='light-button'>START</button>
     </section>`;
     $('main').append(landingPage)
