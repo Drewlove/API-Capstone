@@ -67,9 +67,13 @@ button:focus{
 
 #chart{
     padding: 5px;
-    width: 70vw;
+    width: 80vw;
     margin: 0 auto;
     border: 1px solid white;
+}
+
+#chart-top h2{
+    font-size: 21px;
 }
 
 #page-chart-choice section {
@@ -95,7 +99,7 @@ button:focus{
     margin-bottom: 25px;
     display: block;
     margin: 25px auto;
-    font-size:32px; 
+    font-size: 21px;
 }
 
 #page-compare button{
@@ -190,8 +194,9 @@ input[type=checkbox] {
 }
 
 .graph-btn{
-    display: inline-block; 
-    margin-right: 5px; 
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 18px;
 }
 
 #chart-title{
