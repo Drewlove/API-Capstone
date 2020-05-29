@@ -50,7 +50,7 @@ button{
 .landing img{
     margin: 0 auto;
     display: block;
-    height: 375px;
+    height: 350px;
     margin-bottom: 25px;
 }
 
@@ -96,7 +96,7 @@ button{
 
 #page-compare button{
     margin: 0 auto;
-    display: block;
+    display: inline-block;
 }
 
 form{
