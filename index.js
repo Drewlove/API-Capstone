@@ -103,7 +103,7 @@ function renderForm() {
     `<section id='page-compare'>
     <form>
     <fieldset>
-    <legend>Select States to Compare</legend>
+    <legend>States</legend>
       <div id='state-container'>
         <div id='first-state' class='state'>
           <label for='state'>State:</label>
@@ -114,7 +114,7 @@ function renderForm() {
       <span>Add State</span>
       </fieldset>
       <fieldset>
-      <legend>Choose CO<sub>2</sub> Emissions by Energy Type</legend>
+      <legend>CO<sub>2</sub> Emissions</legend>
       ${renderEnergyInputs()}
       </fieldset>
       <button id='submit-btn' type='submit' class='light-button'>CO<sub>2</sub> Emissions</button>

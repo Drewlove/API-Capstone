@@ -43,9 +43,8 @@ button{
 
 #add-state-btn{
     margin: 0;
-    font-size: 20px;
-    margin-bottom: 20px;
-    display: inline-block;
+    font-size: 21px;
+    width: 40px;
 }
 
 .landing img{
@@ -93,7 +92,11 @@ button{
     display: block;
     margin: 25px auto;
     font-size:32px; 
-    
+}
+
+#page-compare button{
+    margin: 0 auto;
+    display: block;
 }
 
 form{
@@ -121,15 +124,16 @@ form select:hover, input:hover{
 }
 
 .state-val{
-    font-size: 28px;
+    font-size: 21px;
     color: black;
     border: 1px solid white;
 }
 
 .remove-state-btn{
-    display: inline-block; 
-    font-size: 20px;
-    margin-left: 10px;
+    display: inline-block;
+    font-size: 21px;
+    width: 40px;
+    font-weight: bold;
 }
 
 input[type=checkbox] {
