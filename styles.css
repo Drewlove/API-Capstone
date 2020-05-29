@@ -51,12 +51,15 @@ button{
 .landing img{
     margin: 0 auto;
     display: block;
-    height: 50vh;
-    margin-bottom: 10vh;
+    height: 450px;
+    margin-bottom: 50px;
 }
 
 .landing button{
     width: 200px;
+    margin: 0 auto;
+    display: block;
+    font-size: 32px;
 }
 
 #chart{
