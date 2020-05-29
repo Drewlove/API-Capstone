@@ -26,16 +26,11 @@ header h1, h2{
 }
 
 button{
-    margin: 0 auto;
-    display: block;
-    font-size: 38px;
     border-radius: 8px;
     background-color: white;
-    box-shadow: #ffff99 1px 1px 15px;
-    transition: all .1s ease-in-out;
 }
 
-.inactive-button{
+/* .inactive-button{
     background-color: black;
     border: none;
     color: #afafaf; 
@@ -44,7 +39,7 @@ button{
 .inactive-button:hover{
     color: white;
     box-shadow: #ffff99 1px 1px 15px;
-}
+} */
 
 #add-state-btn{
     margin: 0;
