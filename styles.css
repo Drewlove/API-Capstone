@@ -73,12 +73,6 @@ button:hover{
     border: 1px solid white;
 }
 
-@media screen and (min-width: 700px) {
-    fieldset {
-        width: 500px; 
-    }
-}
-
 #page-chart-choice section {
     display: block;
     margin: 25px auto;
@@ -203,7 +197,13 @@ input[type=checkbox] {
     float: left;
 }
 
-@media only screen and (min-width: 450px){
+@media screen and (min-width: 700px) {
+    fieldset {
+        width: 500px; 
+    }
+}
+
+@media screen and (min-width: 600px){
     .landing img{
         width: 650px;
     }
