@@ -68,6 +68,7 @@ button:focus{
 #chart{
     padding: 5px;
     width: 80vw;
+    max-width: 900px;
     margin: 0 auto;
     border: 1px solid white;
 }

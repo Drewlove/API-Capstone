@@ -59,7 +59,7 @@ const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t';
 const stateGdpApiKey = 'A1E0048C-FE51-40B6-B0BE-F8D7D58C1549';
 
 const CO2EMISSIONSPERGDPLABEL = "GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions";
-const TOTALCO2EMISSIONSLABEL= "Total CO2 Emissions";
+const TOTALCO2EMISSIONSLABEL= "CO2 Emissions (MMmt)";
 
 let globalState = {}
 
