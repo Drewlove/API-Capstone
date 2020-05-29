@@ -62,9 +62,8 @@ button:hover{
 .landing img{
     margin: 0 auto;
     display: block;
-    height: 900px;
-    margin-top: 200px;
-    margin-bottom: 400px;
+    height: 50vh;
+    margin-bottom: 10vh;
 }
 
 #chart{
@@ -203,21 +202,5 @@ input[type=checkbox] {
         width: 500px; 
     }
 }
-
-@media (min-width: 700px) {
-    fieldset {
-        width: 500px; 
-    }
-}
-
-@media (min-width: 425px) {
-    .landing img{
-        margin: 0 auto;
-        height: 450px;
-        margin-bottom: 25px;
-        display: block;
-    }
-}
-
 
 
