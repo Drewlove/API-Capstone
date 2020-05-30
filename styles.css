@@ -34,17 +34,6 @@ button:focus{
     outline: none; 
 }
 
-/* .inactive-button{
-    background-color: black;
-    border: none;
-    color: #afafaf; 
-}
-
-.inactive-button:hover{
-    color: white;
-    box-shadow: #ffff99 1px 1px 15px;
-} */
-
 #add-state-btn{
     margin: 0;
     font-size: 21px;
@@ -178,7 +167,6 @@ input[type=checkbox] {
 
 .modal-close:hover{
     cursor: pointer;
-    box-shadow: #ffff99 1px 1px 15px;
 }
 
 .modal>h1 {
@@ -219,8 +207,6 @@ input[type=checkbox] {
 
     button:hover{
         cursor: pointer;
-        box-shadow: #ffffb7 1px 1px 25px;
-        transform: scale(1.05);
     }
 }
 
