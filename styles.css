@@ -126,6 +126,10 @@ form select:hover, input:hover{
     border: 1px solid white;
 }
 
+.state-val:focus{
+    outline: none; 
+}
+
 #submit-btn{
     margin: 0 auto;
     display: block;
@@ -135,7 +139,7 @@ form select:hover, input:hover{
 .remove-state-btn{
     display: inline-block;
     font-size: 21px;
-    width: 40px;
+    width: 30px;
     font-weight: bold;
 }
 
