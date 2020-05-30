@@ -372,15 +372,6 @@ function renderChart(yAxisLabel){
                             } else if(screen.width < 450){
                                 return 12
                             }
-                            //else if (screen.width < 450 && yAxisLabel === TOTALCO2EMISSIONSLABEL){
-                            //     return 12
-                            // } else if (screen.width < 450 && yAxisLabel === CO2EMISSIONSPERGDPLABEL){
-                            //     return 12
-                            // }
-                            //TOTALCO2EMISSIONSLABEL
-                            //CO2EMISSIONSPERGDPLABEL
-                            // console.log(yAxisLabel)
-                            // return screen.width < 450 ? 10 : (years.length/2)
                         })()
                     }
                 }]
@@ -425,11 +416,10 @@ function getYears(yAxisLabel, stateAbbrs, energy){
 
 function renderCanvas(energy) {
     emptyMainContent();
-    $('main').addClass('main-border')
-    $('main').append(`<div id='close-chart' class='modal-close'>X</div>`);
     $('main').append(`<div id='chart-top'></div>`)
     $('#chart-top').append(energyTypeContent(energy));
     $('main').append(`<section id='chart'></section>`);
+    $('#chart').append(`<div id='close-chart' class='modal-close'>X</div>`);
     $("#chart").append(canvasContent()); 
     createEventListener($("#close-chart"), renderForm, false);
 }
