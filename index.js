@@ -344,14 +344,14 @@ function renderChart(yAxisLabel){
                 position: "top", 
                 text: yAxisLabel,
                 fontColor: "white", 
-                fontSize: 18 
+                fontSize: 18
 
             },
             scales: {
                 yAxes: [{
                     ticks: {
                         fontSize: 16,
-                        fontColor: 'white'
+                        fontColor: 'white',
                     }, 
                 }],
                 xAxes: [{
@@ -370,8 +370,20 @@ function renderChart(yAxisLabel){
             layout: {
                 padding: {
                     left: 10
+                },
+            },
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += Math.round(tooltipItem.yLabel * 100) / 100;
+                        return label;
+                    }
                 }
-            }
+            },
         }
     });
     createChartBtns(yAxisLabel)
