@@ -58,8 +58,8 @@ const stateListMaster = {
 const apiKey = 'Q3oXtmNbQIEm2zNEjnbmU0OFyfRI2sgRbBQp9g8t';
 const stateGdpApiKey = 'A1E0048C-FE51-40B6-B0BE-F8D7D58C1549';
 
-const CO2EMISSIONSPERGDPLABEL = "GDP (billions of current dollars) per 1 million metric tons of CO2 Emissions";
-const TOTALCO2EMISSIONSLABEL= "CO2 Emissions (MMmt)";
+const CO2EMISSIONSPERGDPLABEL = "GDP (billions of current dollars) per 1 MMT of CO2 Emissions";
+const TOTALCO2EMISSIONSLABEL= "CO2 Emissions (MMT)";
 
 let globalState = {}
 
@@ -192,10 +192,14 @@ function renderModal(message) {
     toggleOpaque(); 
     let modal =
         `<section class='modal'>
-        <span class='modal-close'>X</span>
-        <h1>${message}</h1>
-    </section>
-    `;
+            <div class='modal-content'>
+                <div class='modal-close'>X</div>
+                <div>
+                    <h1>${message}</h1>
+                </div>
+            </div>
+        </section>`
+        ;
     $('body').append(modal);
     createEventListener($('.modal-close'), closeModal, true)
 }
@@ -224,7 +228,7 @@ function verifyStateSelection(){
         verifyEnergyTypeSelection(states);
     }
     else {
-        renderModal("You cannot choose the same state multiple times")
+        renderModal("Please choose different states")
     }
 }
 
@@ -339,31 +343,51 @@ function renderChart(yAxisLabel){
             datasets: createDataSet(yAxisLabel, states, years),
         },
         options: {
+            maintainAspectRatio: false,
             title: {
                 display: true, 
                 position: "top", 
                 text: yAxisLabel,
                 fontColor: "white", 
-                fontSize: 18
+                fontSize: 16
 
             },
             scales: {
                 yAxes: [{
+                    display: true, 
+                    labelString: 'Label',
                     ticks: {
                         fontSize: 16,
                         fontColor: 'white',
                     }, 
+      
                 }],
                 xAxes: [{
                     ticks: {
                         fontSize: 16,
-                        fontColor: 'white'
+                        fontColor: 'white',
+                        maxTicksLimit: (function(){
+                            if(screen.width > 450){
+                                return 
+                            } else if(screen.width < 450){
+                                return 12
+                            }
+                            //else if (screen.width < 450 && yAxisLabel === TOTALCO2EMISSIONSLABEL){
+                            //     return 12
+                            // } else if (screen.width < 450 && yAxisLabel === CO2EMISSIONSPERGDPLABEL){
+                            //     return 12
+                            // }
+                            //TOTALCO2EMISSIONSLABEL
+                            //CO2EMISSIONSPERGDPLABEL
+                            // console.log(yAxisLabel)
+                            // return screen.width < 450 ? 10 : (years.length/2)
+                        })()
                     }
                 }]
             },
             legend: {
                 labels: {
-                    fontSize: 18,
+                    fontSize: 16,
                     fontColor: 'white'
                 }
             },
@@ -393,12 +417,16 @@ function getYears(yAxisLabel, stateAbbrs, energy){
     if(yAxisLabel === TOTALCO2EMISSIONSLABEL){
         return Object.keys(globalState[stateAbbrs[0]].energyType[energy[0]]);
     } else if(yAxisLabel === CO2EMISSIONSPERGDPLABEL){
+        delete globalState[stateAbbrs[0]].gdp[2018]
+        delete globalState[stateAbbrs[0]].gdp[2019]
         return Object.keys(globalState[stateAbbrs[0]].gdp)
     }
 }
 
 function renderCanvas(energy) {
     emptyMainContent();
+    $('main').addClass('main-border')
+    $('main').append(`<div id='close-chart' class='modal-close'>X</div>`);
     $('main').append(`<div id='chart-top'></div>`)
     $('#chart-top').append(energyTypeContent(energy));
     $('main').append(`<section id='chart'></section>`);
@@ -427,9 +455,9 @@ function totaCO2Btn(){
 
 function toggleActiveBtnClass(yAxisLabel){
     if(yAxisLabel === TOTALCO2EMISSIONSLABEL ){
-        $('#btn-gdp').addClass('inactive-button')
+        $('#btn-gdp').addClass('inactive-btn')
     } else if (yAxisLabel === CO2EMISSIONSPERGDPLABEL){
-        $('#btn-co2').addClass('inactive-button')
+        $('#btn-co2').addClass('inactive-btn')
     }
 }
 
@@ -505,14 +533,13 @@ function getGdpEmissionsRatio(gdp, year, totalCO2emissionsObj){
 }
 
 function energyTypeContent(energy){
-    return  `<h2>Energy Types: ${energy.map(energy => capitalize(energy)).join(", ")}</h2>`
+    return  `<div><h2>Energy Types: ${energy.map(energy => capitalize(energy)).join(", ")}</h2></div>`
 }
 
+//here
 function canvasContent(){
+    // <span id='close-chart' class='modal-close'>X</span>
     return `<div id='chart-title'>
-                <div>
-                <span id='close-chart' class='modal-close'>X</span>
-                </div>
             </div>
             <canvas id='chart-canvas'></canvas>`
 }
@@ -534,7 +561,6 @@ function createDataSet(yAxisLabel, states, years) {
     return responseDataSet;
 }
 
-//meow meow
 function getGraphData(yAxisLabel, state, years){
     let stateAbbr = stateListMaster[state].abbr; 
     if(yAxisLabel === TOTALCO2EMISSIONSLABEL){
