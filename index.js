@@ -86,7 +86,7 @@ $(renderLandingPage)
 function renderLandingPage() {
     let landingPage =
         `<section class='landing'>
-        <img alt='light bulb' src='https://i.ibb.co/WD1PmrW/Screen-Shot-2020-05-30-at-3-38-11-PM.png'>
+        <img alt='light bulb' src='https://www.nicepng.com/png/full/204-2043038_white-lightbulb-icon-light-bulb-icon-white.png'>
         <button class='light-button'>START</button>
     </section>`;
     $('main').append(landingPage)
@@ -228,7 +228,7 @@ function verifyStateSelection(){
         verifyEnergyTypeSelection(states);
     }
     else {
-        renderModal("Please choose different states")
+        renderModal("Please do not choose the same state twice")
     }
 }
 
