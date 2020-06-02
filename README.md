@@ -13,7 +13,7 @@ State GDP data is fetched with an API call to the Bureau of Economic Analysis:
 -https://apps.bea.gov/API/signup/index.cfm
 
 State CO2 emission data is fetched with an API call to the National Renewable Energy Laboratory's developer network:
--https://developer.nrel.gov/
+-https://developer.nrel.gov/docs/cleap/general/
 
 
 
