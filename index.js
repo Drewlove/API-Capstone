@@ -1,8 +1,4 @@
-'use strict';
-
-//highlight active graph
-
-const stateListMaster = {
+'use strict';const stateListMaster = {
     Alabama: { name: "Alabama", abbr: "AL" },
     Alaska: {name: "Alaska", abbr: "AK" },
     Arizona: { name: "Arizona", abbr: "AZ" },
@@ -20,10 +16,10 @@ const stateListMaster = {
     Iowa: {name: "Iowa", abbr: "IA"},
     Kansas: {name: "Kansas", abbr: "KS"},
     Kentucky: {name: "Kentucky", abbr: "KY"},
-    Louisana: {name: "Louisana", abbr: "LA"},
+    Louisiana: {name: "Louisiana", abbr: "LA"},
     Maine: {name: "Maine", abbr: "ME"},
     Maryland: {name: "Maryland", abbr: "MD"},
-    Masschusetts: {name: "Massachusetts", abbr: "MA"},
+    Massachusetts: {name: "Massachusetts", abbr: "MA"},
     Michigan: {name: "Michigan", abbr: "MI"},
     Minnesota: {name: "Minnesota", abbr: "MN"},
     Mississippi: {name: "Mississippi", abbr: "MS"},
@@ -98,6 +94,7 @@ function emptyMainContent() {
 }
 
 function renderForm() {
+    globalState = {}
     emptyMainContent(); 
     let compareStateForm =
     `<section id='page-compare'>
@@ -120,7 +117,6 @@ function renderForm() {
       <button id='submit-btn' type='submit' class='light-button'>CO<sub>2</sub> Emissions</button>
     </form>`
     $('main').append(compareStateForm); 
-    $('body').addClass('background-gradient')
     createEventListener($('#add-state-btn'), addState, true); 
     createEventListener($('.energy-input'), toggleTotalEnergyCheck, false); 
     createEventListener($('#submit-btn'), verifyStateSelection, true);
@@ -186,7 +182,7 @@ function addState(){
 
 function removeState(self){
         self.closest('.state').remove(); 
-}
+    }
 
 function renderModal(message) {
     toggleOpaque(); 
@@ -453,6 +449,8 @@ function toggleActiveBtnClass(yAxisLabel){
 
 function fetchGdpData(){
     let urls = Object.keys(globalState).map(stateAbbr => {
+        console.log(globalState)
+        console.log(stateAbbr)
         return `https://apps.bea.gov/api/data/?UserID=${stateGdpApiKey}&method=GetData&datasetname=Regional&TableName=SAGDP2N&LineCode=1&Year=ALL&GeoFips=${stateAbbr}&ResultFormat=json`
     })
     Promise.all(urls.map(url => 
@@ -526,9 +524,7 @@ function energyTypeContent(energy){
     return  `<div><h2>Energy Types: ${energy.map(energy => capitalize(energy)).join(", ")}</h2></div>`
 }
 
-//here
 function canvasContent(){
-    // <span id='close-chart' class='modal-close'>X</span>
     return `<div id='chart-title'>
             </div>
             <canvas id='chart-canvas'></canvas>`
