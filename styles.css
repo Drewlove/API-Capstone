@@ -68,6 +68,7 @@ button:focus{
     width: 95vw;
     max-width: 950px;
     bottom: 25px;
+    margin: 0 auto; 
 }
 
 #chart-top h2{
@@ -170,11 +171,6 @@ input[type=checkbox] {
     transform: translate(-50%, -25%);
 }
 
-.modal-close#close-chart{
-    position: relative;
-    top: 25px;
-}
-
 .modal-close{
     width: 25px;
     border: 2px solid white;
@@ -213,6 +209,11 @@ input[type=checkbox] {
 .graph-btn.inactive-btn{
     background-color: grey; 
     border: 1px solid grey;
+}
+
+#chart-top{
+    width: 250px; 
+    margin: 0 auto; 
 }
 
 #chart-title{
@@ -260,6 +261,10 @@ input[type=checkbox] {
         height: 425px;
         width: 95vw;
         max-width: 950px;
+    }
+
+    #chart-top{
+        width: 325px;
     }
 }
 
