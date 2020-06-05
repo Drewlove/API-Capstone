@@ -259,6 +259,12 @@ input[type=checkbox] {
         width: 500px; 
     }
 
+    .landing img{
+        margin: 0 auto;
+        display: block;
+        height: 450px;
+    }
+
     button:hover{
         cursor: pointer;
         box-shadow: 2px 2px 5px white;
