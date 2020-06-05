@@ -94,6 +94,7 @@ function emptyMainContent() {
 }
 
 function renderForm() {
+    $('header').removeClass('display-none')
     globalState = {}
     emptyMainContent(); 
     let compareStateForm =
@@ -326,6 +327,7 @@ function getCO2emissions(response, key, energy){
 }
 
 function renderChart(yAxisLabel){ 
+    displayNone('header')
     let stateAbbrs = Object.keys(globalState);
     let states = stateAbbrs.map(stateAbbr => globalState[stateAbbr].fullName);
     let energy = Object.keys(globalState[stateAbbrs[0]].energyType); 
@@ -463,6 +465,11 @@ function fetchGdpData(){
         .then(getGdpPerCO2emissions)
         .then(() => renderChart(CO2EMISSIONSPERGDPLABEL))  
         .catch(error => console.log("error is", error))
+}
+
+function displayNone(elementName){
+    console.log('hi')
+    return $("header").addClass('display-none')
 }
 
 function checkStatus(response){
