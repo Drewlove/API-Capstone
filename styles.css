@@ -144,6 +144,7 @@ form select:hover, input:hover{
     color: black;
     background-color: white;
     border: 1px solid white;
+    width: 175px;
 }
 
 .state-val:focus{
@@ -207,6 +208,8 @@ input[type=checkbox] {
 .graph-btn-container{
     text-align: center;
     font-size: 32px;
+    position: relative;
+    bottom: 20px;
 }
 
 .graph-btn{
@@ -239,6 +242,10 @@ input[type=checkbox] {
         margin-top: 25px;
     }
 
+    .graph-btn-container{
+        bottom: 0px;
+    }
+
     fieldset {
         width: 500px; 
     }
@@ -254,7 +261,7 @@ input[type=checkbox] {
 
     #chart{
         position: relative;
-        height: 450px;
+        height: 425px;
         width: 95vw;
         max-width: 950px;
     }
