@@ -231,7 +231,7 @@ function verifyStateSelection(){
 
 function verifyEnergyTypeSelection(states, ){
     if($('.energy-input:checkbox:checked').length === 0){
-        return renderModal("You must select at least one energy type")
+        return renderModal("You must select at least one energy type.")
     } else {
         submitFormUpdateState(states, getEnergyArr())
         getStateFullName(states); 

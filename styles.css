@@ -183,6 +183,11 @@ input[type=checkbox] {
     transform: translate(-50%, -25%);
 }
 
+.modal-close#close-chart{
+    position: relative;
+    top: 25px;
+}
+
 .modal-close{
     width: 25px;
     border: 2px solid white;
@@ -257,6 +262,10 @@ input[type=checkbox] {
 
     .modal{
         width: 50%; 
+    }
+    
+    .chart .modal-close{
+        top: 0px;
     }
 
     #chart{
