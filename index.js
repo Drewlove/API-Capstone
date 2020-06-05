@@ -528,7 +528,7 @@ function getGdpEmissionsRatio(gdp, year, totalCO2emissionsObj){
 }
 
 function energyTypeContent(energy){
-    return  `<div><h2>Energy Types: ${energy.map(energy => capitalize(energy)).join(", ")}</h2></div>`
+    return  `<div><h2>${energy.map(energy => capitalize(energy)).join(", ")}</h2></div>`
 }
 
 function canvasContent(){
