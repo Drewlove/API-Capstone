@@ -83,7 +83,7 @@ function renderLandingPage() {
     let landingPage =
         `<section class='landing'>
         <img alt='light bulb' src='https://www.nicepng.com/png/full/204-2043038_white-lightbulb-icon-light-bulb-icon-white.png'>
-        <button class='light-button'>START</button>
+        <button>START</button>
     </section>`;
     $('main').append(landingPage)
     createEventListener($('.landing button'), renderForm, false)
@@ -108,14 +108,14 @@ function renderForm() {
           <select class='state-val' name='state'>${getStateOptions()}</select>      
         </div>
       </div>
-      <button id='add-state-btn' class='light-button'>+</button>
+      <button id='add-state-btn'>+</button>
       <span>Add State</span>
       </fieldset>
       <fieldset>
       <legend>CO<sub>2</sub> Emissions</legend>
       ${renderEnergyInputs()}
       </fieldset>
-      <button id='submit-btn' type='submit' class='light-button'>CO<sub>2</sub> Emissions</button>
+      <button id='submit-btn' type='submit'>CO<sub>2</sub> Emissions</button>
     </form>`
     $('main').append(compareStateForm); 
     createEventListener($('#add-state-btn'), addState, true); 
@@ -173,7 +173,7 @@ function addState(){
     if($('.state').length <= 4){
         let newStateEntry = $("#first-state").clone(true).removeAttr("id");
         $("#state-container").append(newStateEntry)
-        $('.state').last().append(`<button class='remove-state-btn light-button'>-</button>`)
+        $('.state').last().append(`<button class='remove-state-btn'>-</button>`)
         let lastState = $('.state').last().find('.remove-state-btn')
         createEventListener(lastState, removeState, true); 
     } else {
